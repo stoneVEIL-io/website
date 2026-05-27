@@ -3,15 +3,48 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { createServer as createViteServer } from "vite";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import { db } from "./lib/db";
+import { leads } from "./lib/schema";
+import { validateLeadInput } from "./lib/validation";
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+// Enable helmet for security headers
+// Configure CSP rules dynamically to allow inline resources needed by Vite developer server
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://*"],
+        connectSrc: ["'self'", "https://*"],
+      },
+    },
+  })
+);
 
 // Enable JSON body parsed inputs
 app.use(express.json());
+
+// Set up rate limiter for lead generation endpoint (max 5 requests per 15 minutes per IP)
+const leadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: "Too many lead audit requests from this IP. Please try again after 15 minutes."
+  }
+});
 
 // Initialize server-side Gemini safely
 // Securely loaded via process.env.GEMINI_API_KEY
@@ -32,15 +65,40 @@ const getGeminiClient = () => {
 };
 
 // API Endpoint: Capture Lead and Generate Instant Custom Audit Recommendations using Gemini
-app.post("/api/lead", async (req, res) => {
+app.post("/api/lead", leadLimiter, async (req, res) => {
   try {
-    const { name, email, company, phone, strain, process: customProcess } = req.body;
-    
-    if (!name || !email || !company || !strain) {
-      return res.status(400).json({ error: "Missing required lead information fields." });
+    // Validate and sanitize input payload to prevent prompt injection or spam
+    const validation = validateLeadInput(req.body);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: "Validation failed", details: validation.errors });
     }
 
-    console.log(`Received B2B lead capture for ${name} at ${company} (${email}). Pain point selected: "${strain}"`);
+    const { name, email, company, phone, strain, process: customProcess } = validation.data!;
+    
+    // Parse ROI values from request if present
+    const roiHours = req.body.roiHours ? parseInt(req.body.roiHours) : null;
+    const roiSavings = req.body.roiSavings ? parseInt(req.body.roiSavings) : null;
+
+    console.log(`Received secure lead capture for ${name} at ${company} (${email}). Pain point: "${strain}"`);
+
+    // Persist validated lead to Neon database
+    try {
+      await db.insert(leads).values({
+        name,
+        email,
+        company,
+        phone,
+        strain,
+        process: customProcess,
+        roiHours,
+        roiSavings,
+      });
+      console.log(`Successfully stored lead in database for ${email}`);
+    } catch (dbError) {
+      // Log database insertion error, but don't fail the request.
+      // This ensures clients still get their custom AI recommendations if the DB connection is offline/sandboxed
+      console.error("Failed to persist lead to Neon database:", dbError);
+    }
 
     // Fetch initialized Gemini client
     const ai = getGeminiClient();

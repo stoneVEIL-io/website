@@ -537,54 +537,54 @@ export default function App() {
               Sound familiar?
             </h2>
             <p className="text-slate-600 text-base md:text-lg">
-              The silent operational burden on SMB owners. You didn't start a company to spend 2 hours a day manually typing data and coordinating meetings.
+              You started a trade business to do the work. Not to be the call-center, the marketer, and the after-hours responder all at once.
             </p>
           </div>
 
           {/* 6-Card Grid of Pain Points */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            
+
             {/* Card 1 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
               <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <ArrowRightLeft className="w-5 h-5" />
+                <Phone className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Spreadsheet Copy-Pasta</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Manually entering customer information from form entries, chats, and lead files into CRM spreadsheets.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Phone rings while you're on a job</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">You can't stop in the middle of work to answer. The call goes to voicemail, and most homeowners just dial the next guy on the list.</p>
               </div>
             </div>
 
             {/* Card 2 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
               <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Flame className="w-5 h-5" />
+                <Clock className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Leads Falling Through</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Incoming hot prospect messages go cold because automated custom followup templates were missed that hour.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Slow text-back loses the lead</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Replying within 5 minutes vs. an hour can mean the difference between a booked job and a homeowner who's already moved on.</p>
               </div>
             </div>
 
             {/* Card 3 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
               <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <DollarSign className="w-5 h-5" />
+                <Building2 className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Chasing Invoices</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Tracking billed invoices, coordinating schedules for billing reminders, and updating accounts by hand.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Weak Google Profile</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Missing hours, old photos, thin reviews. You're invisible in the Map Pack while a competitor with a fuller profile wins every search.</p>
               </div>
             </div>
 
             {/* Card 4 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
               <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Layers className="w-5 h-5" />
+                <Flame className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">clunky Reporting</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Staff spending hours generating CSVs, downloading pipeline metrics, and hand-filtering pipeline status reports.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Reviews you never get around to asking for</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Happy customers don't think to leave one. Without a system to ask, your review count stays flat — and so does your Google ranking.</p>
               </div>
             </div>
 
@@ -594,19 +594,19 @@ export default function App() {
                 <Mail className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Radio Silence After Hours</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Inbound tickets and pricing requests sent over the weekend remain unanswered, losing deals to fast competitors.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Radio silence after 5pm</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Saturday-morning emergency call goes nowhere until Monday. By then the homeowner's hired someone else and you'll never know they tried.</p>
               </div>
             </div>
 
             {/* Card 6 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
               <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Calendar className="w-5 h-5" />
+                <DollarSign className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Scheduling Pinball</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Playing back-and-forth scheduling tag over emails to lock down a simple 30 minute onboarding call slot.</p>
+                <h3 className="font-bold text-slate-900 font-display text-base">Quotes that go out three days late</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Lead asks for pricing on a Tuesday. You finish the quote on Friday from the truck. They've already booked the other guy who got back to them that night.</p>
               </div>
             </div>
 
@@ -614,7 +614,7 @@ export default function App() {
 
           <div className="text-center pt-4">
             <p className="text-lg md:text-xl font-semibold text-[#0F1929] max-w-xl mx-auto italic font-display">
-              "Every single one of these workflows is automatable. Most can be live in production in less than one week."
+              "Every one of these is fixable in your first build. Most go live within 1–2 weeks."
             </p>
           </div>
 
@@ -627,10 +627,10 @@ export default function App() {
           
           <div className="text-center space-y-3 max-w-2xl bg-transparent">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              How We Turn Your Bottlenecks Into Automated Workflows
+              From "where do I even start" to booked jobs in three steps
             </h2>
             <p className="text-slate-600 text-base md:text-lg">
-              A streamlined agency engagement designed with minimal impact on your busy pipeline. Zero code mastery required.
+              Three steps, designed to keep you on the job site. No code, no spreadsheets, no learning curve.
             </p>
           </div>
 
@@ -644,12 +644,12 @@ export default function App() {
                 01
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">1. Discovery Audit</h3>
+                <h3 className="text-xl font-bold font-display text-slate-950">1. Free Google Profile audit</h3>
                 <span className="inline-block bg-indigo-55 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  Time: 30 mins
+                  Time: 15 min call
                 </span>
                 <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  We look at your administrative bottlenecks, document software tools and datasets in use, and qualify potential ROI benchmarks in a free discovery call.
+                  I pull your Google Business Profile, compare it side-by-side with a top local competitor in your trade, and send you 3 specific things costing you jobs right now. Yours to keep — even if we don't work together.
                 </p>
               </div>
             </div>
@@ -660,12 +660,12 @@ export default function App() {
                 02
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">2. Technical Build</h3>
+                <h3 className="text-xl font-bold font-display text-slate-950">2. Build & launch</h3>
                 <span className="inline-block bg-indigo-55 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  Time: 5-7 days
+                  Time: 1–2 weeks
                 </span>
                 <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  We coordinate custom integrations, secure API webhooks, and trigger testing processes. We deploy to sandbox environments so you can audit them.
+                  Mobile-first website tailored to your trade, Google Profile fixes, and automated lead-response: instant text-back, after-hours coverage, missed-call follow-up. $3K–$5K, first-cohort pricing.
                 </p>
               </div>
             </div>
@@ -676,12 +676,12 @@ export default function App() {
                 03
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">3. Hands-Free Execution</h3>
+                <h3 className="text-xl font-bold font-display text-slate-950">3. Automated lead flow on retainer</h3>
                 <span className="inline-block bg-emerald-55 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  Time: Forever
+                  $300/mo, cancel anytime
                 </span>
                 <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  Your business automations execute silently on custom cron tasks, moving metrics flawlessly, while you reclaim hours of focus to scale operations.
+                  The lead-response stays live and gets tuned monthly based on what's converting for you. You stop being the bottleneck — the leads land in your phone already qualified.
                 </p>
               </div>
             </div>
@@ -689,11 +689,11 @@ export default function App() {
           </div>
 
           <div className="pt-4">
-            <a 
-              href="#lead-capture-form" 
+            <a
+              href="#lead-capture-form"
               className="inline-flex items-center space-x-3 bg-[#0F1929] hover:bg-[#1E293B] text-white font-bold py-4 px-8 rounded-lg shadow-lg transition duration-150"
             >
-              <span>Schedule Free Discovery Audit Call</span>
+              <span>Get my free Google Profile audit</span>
               <ArrowRight className="w-4 h-4 text-slate-350" />
             </a>
           </div>
@@ -995,7 +995,7 @@ export default function App() {
                   </button>
                   
                   <p className="text-center text-xs text-slate-400 mt-3 font-semibold">
-                    Join <span className="text-amber-400">127+ SMBs</span> who have successfully automated their tedious tasks
+                    First-cohort pricing — <span className="text-amber-400">capped at 5 contractors</span>. Replies go to a real inbox, not noreply.
                   </p>
                 </div>
 
@@ -1128,73 +1128,71 @@ export default function App() {
               Common Questions
             </h2>
             <p className="text-slate-600 text-base md:text-lg">
-              Addressing operational objections and clarifying the deployment scope of stoneVEIL integrations.
+              Straight answers to the questions contractors keep asking on the audit call.
             </p>
           </div>
 
           {/* FAQ Accordion container */}
           <div className="w-full space-y-4">
-            
+
             {/* Q1 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(0)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">How long does it take to deploy an automation?</span>
+                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">How long until my site is live?</span>
                 <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
                   {activeFaq === 0 ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === 0 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>Focused tasks — such as connecting custom website intake forms straight to HubSpot, building auto-dispatching messaging channels, or automatic invoices — scale and go live within <strong>3 to 5 business days</strong>.</p>
-                  <p>In your free audit call, we will map out exact dependencies and timeframe expectations. <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Start with a 30-min audit &rarr;</a></p>
+                  <p><strong>1–2 weeks from kick-off.</strong> The Google Profile audit happens on a free 15-minute call before that, so you see the work before you commit to anything.</p>
+                  <p><a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Book the 15-min audit call &rarr;</a></p>
                 </div>
               )}
             </div>
 
             {/* Q2 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(1)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">Do I need technical skills to use this?</span>
+                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">Do I need to be tech-savvy?</span>
                 <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
                   {activeFaq === 1 ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === 1 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p><strong>Absolutely not.</strong> We design every automation to run completely hands-free in the background. If manual review checks are ever needed (like auditing a pipeline entry draft), we generate clean, literal, human-friendly action buttons.</p>
-                  <p>Our dev crew oversees security and configurations completely. <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Book your audit call &rarr;</a></p>
+                  <p><strong>No.</strong> You keep doing the jobs. I handle the site, the Google Profile, and the lead-response automations. Replies to my emails come straight to me — not a noreply inbox.</p>
                 </div>
               )}
             </div>
 
             {/* Q3 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(2)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What tools and software do you integrate with?</span>
+                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">Will this work with the tools I already use?</span>
                 <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
                   {activeFaq === 2 ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === 2 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>We integrate with clean B2B SaaS software. This includes CRM systems (HubSpot, Salesforce, Pipedrive), databases (Airtable, SQL, Google Sheets), and standard billing pipelines (Stripe, QuickBooks, Xero).</p>
-                  <p>Even if your software does not support basic API keys, we construct custom web scrapers to bridge systems. <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Map your systems &rarr;</a></p>
+                  <p>Yes. If you already use Jobber, Housecall Pro, ServiceTitan, Google Calendar, QuickBooks, or just a phone and a notebook — we wire into it. Nobody's forcing you to switch software.</p>
                 </div>
               )}
             </div>
 
             {/* Q4 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(3)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
@@ -1205,44 +1203,43 @@ export default function App() {
               </button>
               {activeFaq === 3 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>The discovery audit itself has absolute <strong>0 USD cost</strong>. Custom operational triggers range from 1,200 USD setups for focused micro-pipelines up to custom retainers for full-service pipeline administration.</p>
-                  <p>We provide exact quotes and guaranteed savings goals before starting any project. <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Claim your free quote &rarr;</a></p>
+                  <p><strong>Audit: free.</strong> Build: $3K–$5K depending on scope. Retainer: $300/month for the automated lead response + monthly tuning. First-cohort pricing — capped at 5 contractors. You get a written quote before any work starts, and there are no surprise add-ons.</p>
                 </div>
               )}
             </div>
 
             {/* Q5 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(4)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What if I already have some software — can you work with it?</span>
+                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What if I already have a website?</span>
                 <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
                   {activeFaq === 4 ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === 4 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p><strong>Yes, we prefer it.</strong> We construct background programmatic bridges around your existing tech stack. We will never force you to purchase unnecessary software or migrate away from core systems you already love.</p>
+                  <p>Most contractor sites I see are slow on a phone, missing from the Google Map Pack, or both. The audit shows you exactly where yours stands next to the local competitor winning your searches. <strong>If your site is already winning, I'll tell you — and you don't need me.</strong></p>
                 </div>
               )}
             </div>
 
             {/* Q6 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button 
+              <button
                 onClick={() => toggleFaq(5)}
                 className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
               >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What's the ROI I should expect?</span>
+                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What's the ROI?</span>
                 <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
                   {activeFaq === 5 ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === 5 && (
                 <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>The average stoneVEIL customer saves <strong>11 hours per week per employee</strong>. For a crew of 8, that adds up to 4500 saved hours of back-office admin labor per year. Most projects achieve break-even recouping in under 30 days.</p>
+                  <p>Honest answer: it depends on your search volume, close rate, and average ticket. The <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">leads calculator</a> above is the same math I'll walk through on the audit call. If a 10-point close-rate lift is worth more to you than $300/month, the retainer pays for itself. If it's not, I'll tell you.</p>
                 </div>
               )}
             </div>
@@ -1258,23 +1255,23 @@ export default function App() {
 
         <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-extrabold font-display text-white max-w-2xl leading-snug">
-            Ready to stop doing manually what automation can do for you?
+            Ready to start winning the jobs you're losing?
           </h2>
           <p className="text-slate-400 text-base md:text-lg max-w-xl">
-            Let us map your workflows and present a detailed savings model. Completely free, no obligations.
+            Free 15-minute Google Profile audit. You see what your competitor is doing better, and you keep the report either way. No follow-ups, no nonsense.
           </p>
-          
+
           <div className="pt-4">
-            <a 
-              href="#lead-capture-form" 
+            <a
+              href="#lead-capture-form"
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/20 transition-all text-base inline-block hover:-translate-y-0.5"
             >
-              Book Your Free Workflow Audit &rarr;
+              Get my free Google Profile audit &rarr;
             </a>
           </div>
-          
+
           <p className="text-xs text-slate-500 pt-2 font-mono">
-            Or email us directly: <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline font-semibold">origin@stoneveil.io</a>
+            Or email me directly: <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline font-semibold">origin@stoneveil.io</a>
           </p>
         </div>
       </section>
@@ -1301,14 +1298,14 @@ export default function App() {
       {/* MOBILE STICKY BOTTOM CAPTURE BAR */}
       <div className={`fixed bottom-0 inset-x-0 bg-[#0F1929]/95 border-t border-white/10 backdrop-blur-md px-6 py-4 flex items-center justify-between text-white z-40 md:hidden transition-transform duration-300 ${stickyBarVisible ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase font-mono text-amber-400 font-bold tracking-wider">Free discovery</span>
-          <span className="text-xs font-semibold text-slate-350">Workflow audit call</span>
+          <span className="text-[10px] uppercase font-mono text-amber-400 font-bold tracking-wider">Free · 15 min</span>
+          <span className="text-xs font-semibold text-slate-350">Google Profile audit</span>
         </div>
-        <a 
-          href="#lead-capture-form" 
+        <a
+          href="#lead-capture-form"
           className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded shadow-lg"
         >
-          Book Call
+          Get Audit
         </a>
       </div>
 

@@ -10,6 +10,7 @@ import { validateLeadInput } from "./lib/validation";
 import { fetchGbpData } from "./lib/gbp";
 import { runAudit, buildFallbackAudit } from "./lib/gemini";
 import { sendAuditEmail } from "./lib/email";
+import { generateDemoPage } from "./lib/demo";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -180,6 +181,94 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
     res.status(500).json({ error: "Failed to process lead database entries or generate AI workflow suggestions." });
   }
 });
+
+// Admin: demo page generator — disabled if ADMIN_PASSWORD is not set
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+function requireAdminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!ADMIN_PASSWORD) {
+    res.status(404).end();
+    return;
+  }
+  const auth = req.headers["authorization"] ?? "";
+  const [scheme, encoded] = auth.split(" ");
+  if (scheme?.toLowerCase() !== "basic" || !encoded) {
+    res.setHeader("WWW-Authenticate", 'Basic realm="Stoneveil Admin"');
+    res.status(401).end();
+    return;
+  }
+  const [, password] = Buffer.from(encoded, "base64").toString().split(":");
+  if (password !== ADMIN_PASSWORD) {
+    res.setHeader("WWW-Authenticate", 'Basic realm="Stoneveil Admin"');
+    res.status(401).end();
+    return;
+  }
+  next();
+}
+
+const ADMIN_FORM_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Demo Generator · Stoneveil</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:40px;width:100%;max-width:480px}
+    h1{font-size:22px;font-weight:800;margin-bottom:6px}
+    .sub{color:#94a3b8;font-size:13px;margin-bottom:28px}
+    label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:6px}
+    input{width:100%;background:#0f172a;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;color:#fff;font-size:15px;margin-bottom:20px;outline:none}
+    input:focus{border-color:#6366f1}
+    button{width:100%;background:#f59e0b;color:#1e293b;font-weight:800;font-size:15px;padding:14px;border:none;border-radius:8px;cursor:pointer}
+    button:disabled{opacity:0.5;cursor:not-allowed}
+    .note{font-size:11px;color:#64748b;text-align:center;margin-top:16px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Demo Page Generator</h1>
+    <p class="sub">Enter a contractor's business name and location to generate a demo website for the discovery call.</p>
+    <form method="POST" action="/admin/demo" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='Generating (up to 30s)…'">
+      <label for="b">Business Name</label>
+      <input id="b" name="businessName" type="text" placeholder="Acme Plumbing" required autocomplete="off" />
+      <label for="c">City, State</label>
+      <input id="c" name="cityState" type="text" placeholder="Denver, CO" required autocomplete="off" />
+      <button type="submit">Generate Demo Page →</button>
+    </form>
+    <p class="note">Fetches live GBP data · Gemini-generated copy · ~15–30 s</p>
+  </div>
+</body>
+</html>`;
+
+app.get("/admin/demo", requireAdminAuth, (_req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(ADMIN_FORM_HTML);
+});
+
+app.post(
+  "/admin/demo",
+  requireAdminAuth,
+  express.urlencoded({ extended: false }),
+  async (req, res) => {
+    const businessName = (req.body?.businessName ?? "").toString().trim().slice(0, 120);
+    const cityState = (req.body?.cityState ?? "").toString().trim().slice(0, 120);
+
+    if (!businessName || !cityState) {
+      res.status(400).send("businessName and cityState are required");
+      return;
+    }
+
+    try {
+      const html = await generateDemoPage(businessName, cityState);
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(html);
+    } catch (err) {
+      console.error("Demo generation failed:", err);
+      res.status(500).send("Demo generation failed — check GEMINI_API_KEY and server logs.");
+    }
+  }
+);
 
 function buildCalendlyUrl(tier: string, name: string, email: string): string | null {
   if (tier !== "hot") return null;

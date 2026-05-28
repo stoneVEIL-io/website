@@ -1,15 +1,12 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { db } from "./lib/db";
 import { leads } from "./lib/schema";
 import { validateLeadInput } from "./lib/validation";
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;

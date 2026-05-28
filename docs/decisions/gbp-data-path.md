@@ -4,13 +4,15 @@ _Decided 2026-05-27. Owner: founder. Re-evaluate at: > 500 audits/month or > $20
 
 ## Choice
 
-Google Places API via `@googlemaps/google-maps-services-js`. Paid, ToS-clean, reliable.
+**Google Places API (New)** via direct `fetch` to `places.googleapis.com/v1`. Paid, ToS-clean, reliable.
+
+**Note on the New vs. legacy choice:** Google has stopped allowing new GCP projects to enable the legacy Places API as of 2025 ("REQUEST_DENIED — You're calling a legacy API"). Our spike on 2026-05-27 confirmed this on a freshly-created project. We use Places API (New) endpoints (`places.googleapis.com`) with `X-Goog-Api-Key` + `X-Goog-FieldMask` headers. The `@googlemaps/google-maps-services-js` SDK targets the legacy endpoints, so we use direct `fetch` instead — fewer deps, smaller bundle.
 
 ## Why this over scraping
 
 - **ToS compliance.** Scraping Maps/Search violates Google's terms. One C&D letter or a UI change kills the audit overnight.
-- **Cost is negligible at our volume.** Find Place ~$0.017 + Place Details ~$0.017 + photos ~$0.007 each ≈ **$0.04 per contractor audit** at last published rates (2024; verify in spike). 100 audits/mo ≈ $4/mo. The retainer pays for 75x our audit cost.
-- **Real reviews via API.** Up to 5 most-recent reviews come back via Place Details (`reviews` field) without scraping.
+- **Cost is negligible at our volume.** Places API (New): Text Search ~$0.032 + Place Details (Pro SKU, includes reviews) ~$0.020 ≈ **$0.05 per contractor audit** at 2025 published rates. 100 audits/mo ≈ $5/mo. The retainer pays for 60x our audit cost. Set the GCP budget alert at $20/mo.
+- **Real reviews via API.** Up to 5 most-recent reviews come back via Place Details `reviews` field. New API exposes them as `reviews[].text.text` + `reviews[].authorAttribution.displayName`.
 
 ## Operational notes
 

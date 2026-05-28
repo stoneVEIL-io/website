@@ -1,21 +1,18 @@
 /**
- * Phase 0 / Task 0.1 spike: Google Places API GBP data fetch.
+ * Phase 0 / Task 0.1 spike: Places API (New) GBP data fetch.
+ *
+ * Uses the new places.googleapis.com endpoints because legacy Places API is
+ * no longer enableable for new GCP projects (Google deprecation as of 2025).
  *
  * Usage:
  *   npx tsx scripts/gbp-spike.ts "Business Name" "City, State"
  *
- * Requires GOOGLE_PLACES_API_KEY in .env.
- *
- * Outputs the data fields we plan to feed into Gemini for the contractor audit:
- *   name, address, phone, website, hours, rating, review count, top reviews,
- *   services (from types + editorial_summary), photo count.
+ * Requires GOOGLE_PLACES_API_KEY in .env with Places API (New) enabled.
  */
 
 import "dotenv/config";
-import { Client, PlaceInputType } from "@googlemaps/google-maps-services-js";
 
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
-
 if (!API_KEY) {
   console.error("Missing GOOGLE_PLACES_API_KEY in .env");
   process.exit(1);
@@ -27,64 +24,85 @@ if (!name || !location) {
   process.exit(1);
 }
 
-const client = new Client({});
+const SEARCH_URL = "https://places.googleapis.com/v1/places:searchText";
 
-const query = `${name} ${location}`;
-
-const find = await client.findPlaceFromText({
-  params: {
-    input: query,
-    inputtype: PlaceInputType.textQuery,
-    fields: ["place_id", "name", "formatted_address"],
-    key: API_KEY,
+const searchRes = await fetch(SEARCH_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Goog-Api-Key": API_KEY,
+    "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress",
   },
+  body: JSON.stringify({ textQuery: `${name} ${location}` }),
 });
 
-const candidate = find.data.candidates[0];
-if (!candidate?.place_id) {
-  console.error(`No place found for "${query}".`);
-  console.error("Status:", find.data.status);
+if (!searchRes.ok) {
+  console.error("Text Search failed:", searchRes.status);
+  console.error(await searchRes.text());
+  process.exit(3);
+}
+
+const searchData = (await searchRes.json()) as {
+  places?: Array<{ id: string; displayName?: { text?: string }; formattedAddress?: string }>;
+};
+
+const first = searchData.places?.[0];
+if (!first?.id) {
+  console.error(`No place found for "${name} ${location}".`);
+  console.error("Response:", JSON.stringify(searchData, null, 2));
   process.exit(2);
 }
 
-const details = await client.placeDetails({
-  params: {
-    place_id: candidate.place_id,
-    fields: [
-      "name",
-      "formatted_address",
-      "formatted_phone_number",
-      "website",
-      "opening_hours",
-      "rating",
-      "user_ratings_total",
-      "reviews",
-      "types",
-      "editorial_summary",
-      "photo",
-    ],
-    key: API_KEY,
+const DETAILS_FIELDS = [
+  "id",
+  "displayName",
+  "formattedAddress",
+  "nationalPhoneNumber",
+  "websiteUri",
+  "regularOpeningHours",
+  "rating",
+  "userRatingCount",
+  "reviews",
+  "types",
+  "editorialSummary",
+  "photos",
+  "primaryType",
+  "primaryTypeDisplayName",
+].join(",");
+
+const detailsRes = await fetch(`https://places.googleapis.com/v1/places/${first.id}`, {
+  headers: {
+    "X-Goog-Api-Key": API_KEY,
+    "X-Goog-FieldMask": DETAILS_FIELDS,
   },
 });
 
-const d = details.data.result;
+if (!detailsRes.ok) {
+  console.error("Place Details failed:", detailsRes.status);
+  console.error(await detailsRes.text());
+  process.exit(4);
+}
+
+const d = (await detailsRes.json()) as any;
 
 const summary = {
-  name: d.name,
-  address: d.formatted_address,
-  phone: d.formatted_phone_number ?? null,
-  website: d.website ?? null,
+  id: d.id,
+  name: d.displayName?.text,
+  primaryType: d.primaryTypeDisplayName?.text ?? d.primaryType,
+  address: d.formattedAddress,
+  phone: d.nationalPhoneNumber ?? null,
+  website: d.websiteUri ?? null,
   rating: d.rating ?? null,
-  reviewCount: d.user_ratings_total ?? 0,
-  hours: d.opening_hours?.weekday_text ?? null,
+  reviewCount: d.userRatingCount ?? 0,
+  hours: d.regularOpeningHours?.weekdayDescriptions ?? null,
   types: d.types ?? [],
-  editorialSummary: d.editorial_summary?.overview ?? null,
+  editorialSummary: d.editorialSummary?.text ?? null,
   photoCount: d.photos?.length ?? 0,
-  topReviews: (d.reviews ?? []).slice(0, 5).map((r) => ({
+  topReviews: (d.reviews ?? []).slice(0, 5).map((r: any) => ({
     rating: r.rating,
-    author: r.author_name,
-    text: r.text?.slice(0, 200),
-    relativeTime: r.relative_time_description,
+    author: r.authorAttribution?.displayName,
+    text: r.text?.text?.slice(0, 200) ?? r.originalText?.text?.slice(0, 200),
+    relativeTime: r.relativePublishTimeDescription,
   })),
 };
 

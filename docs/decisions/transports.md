@@ -12,10 +12,10 @@ _Decided 2026-05-27. Owner: founder._
 ## Email transport: Resend
 
 - **Why over SendGrid/Postmark/Mailgun:** cleanest DX for solo founders, $0 up to 3,000 emails/mo, simple API, modern docs.
-- **Domain setup (founder action):** verify a sending domain in Resend's dashboard. Add SPF, DKIM, DMARC records to DNS. Use `audits@stoneveil.com` (or chosen subdomain) — never send from `noreply@` for a 1-person business; replies should land in the founder's inbox.
+- **Domain setup (founder action):** verify a sending domain in Resend's dashboard. Add SPF, DKIM, DMARC records to DNS. Use a real mailbox (e.g., `origin@stoneveil.io` or `audits@stoneveil.io` forwarded to `origin@`) — never send from `noreply@` for a 1-person business; replies are valuable signal and should land in the founder's inbox.
 - **Env vars:**
   - `RESEND_API_KEY` — created in Resend dashboard
-  - `EMAIL_FROM` — verified sender, e.g., `"Stoneveil Audits <audits@stoneveil.com>"`
+  - `EMAIL_FROM` — verified sender, e.g., `"Stoneveil <origin@stoneveil.io>"`. This is the From: header the contractor sees + the default reply destination.
 - **Failure mode:** email send is non-blocking. If Resend errors, the lead is still persisted, the audit is still shown to the user, and the failure is logged.
 
 ## What this unblocks

@@ -38,17 +38,17 @@ export default function App() {
   const [htmlCode, setHtmlCode] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // ROI Calculator inputs
-  const [empCount, setEmpCount] = useState<number>(8);
-  const [dataHours, setDataHours] = useState<number>(6);
-  const [followHours, setFollowHours] = useState<number>(5);
-  const [hourlyRate, setHourlyRate] = useState<number>(35);
+  // ROI Calculator inputs — leads-won model
+  const [estMonthlySearches, setEstMonthlySearches] = useState<number>(120);
+  const [estCloseRate, setEstCloseRate] = useState<number>(15); // percent
+  const [estTicket, setEstTicket] = useState<number>(450); // average ticket $
 
-  // Computed ROI Values
-  const totalWeeklyHoursSaved = empCount * (dataHours * 0.8 + followHours * 0.9); // expect ~80-90% automation efficiency
-  const totalAnnualHoursSaved = Math.round(totalWeeklyHoursSaved * 52);
-  const totalAnnualSavings = Math.round(totalAnnualHoursSaved * hourlyRate);
-  const ROIWeeks = Math.round((1800 / (totalAnnualSavings / 52)) * 10) / 10; // Assuming dynamic cost scaling basis
+  // A 10-percentage-point lift in close rate is the typical Stoneveil outcome —
+  // honest and defensible. Revenue at stake = searches × 10pp × ticket.
+  const currentMonthlyRevenue = Math.round(estMonthlySearches * (estCloseRate / 100) * estTicket);
+  const monthlyRevenueAtStake = Math.round(estMonthlySearches * 0.10 * estTicket);
+  const annualRevenueAtStake = monthlyRevenueAtStake * 12;
+  const monthlyJobsAtStake = Math.round(estMonthlySearches * 0.10);
 
   // Lead Form state
   const [name, setName] = useState('');
@@ -126,8 +126,15 @@ export default function App() {
           phone,
           strain,
           process: customProcess,
-          roiHours: totalAnnualHoursSaved,
-          roiSavings: totalAnnualSavings
+          // Repurposed pending Task #4 schema migration:
+          //   roiHours  = monthly jobs at stake (10pp close-rate lift)
+          //   roiSavings = annual revenue at stake
+          roiHours: monthlyJobsAtStake,
+          roiSavings: annualRevenueAtStake,
+          // Raw inputs — server ignores these until Task #4 adds columns
+          estMonthlySearches,
+          estCloseRate,
+          estTicket
         })
       });
 
@@ -169,12 +176,8 @@ export default function App() {
   };
 
   const claimSavings = () => {
-    setStrain(
-      dataHours > followHours 
-        ? "Reporting & data entry" 
-        : "Customer follow-ups & CRM"
-    );
-    setCustomProcess(`Save ${totalAnnualHoursSaved} hours of annual labor across ${empCount} employees and capture $${totalAnnualSavings.toLocaleString()} in calculated business costs.`);
+    setStrain("Lead generation & intake");
+    setCustomProcess(`From the leads calculator: ~${estMonthlySearches} monthly local searches × ${estCloseRate}% current close rate × $${estTicket} avg ticket. A 10-point close-rate lift would mean ~$${monthlyRevenueAtStake.toLocaleString()}/month ($${annualRevenueAtStake.toLocaleString()}/year) back to you.`);
     const element = document.getElementById("lead-capture-form");
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -234,7 +237,7 @@ export default function App() {
             href="#lead-capture-form" 
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm md:text-base py-2.5 px-5 rounded-lg transition-all duration-200 shadow-md hover:shadow-indigo-500/10"
           >
-            Book Free Audit
+            Get my free audit
           </a>
         </div>
       </header>
@@ -251,15 +254,19 @@ export default function App() {
           <div className="lg:col-span-7 flex flex-col space-y-6 md:space-y-8 items-start">
             <span className="inline-flex items-center space-x-2 bg-white/5 border border-white/15 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-400 font-mono">
               <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block animate-ping"></span>
-              <span>AI Operations Specialist For Small Business</span>
+              <span>Built for 2–5 Person Trades — First-Cohort Pricing</span>
             </span>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight font-display text-white">
-              Stop Losing <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">15+ Hours/Week</span> to Work Your Business Could Do Itself.
+              You're not getting <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">the jobs you should be</span>.
             </h1>
             
             <p className="text-slate-300 text-lg md:text-xl max-w-2xl leading-relaxed">
-              We design and deploy custom AI workflow automations for small businesses that eliminate manual data entry, missed follow-ups, and broken systems — in days, not months.
+              Local homeowners are searching for trades like yours right now — and more than half are picking your competitor because of a slow website, a missed text, or a better-looking Google profile.
+            </p>
+
+            <p className="text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed">
+              Stoneveil builds 2–5 person contractors a Google-Profile-powered website that wins more of those jobs, then automates the lead-response loop where you used to lose them.
             </p>
             
             <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4 pt-2">
@@ -267,7 +274,7 @@ export default function App() {
                 href="#lead-capture-form" 
                 className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/15 transition-all text-base hover:-translate-y-0.5"
               >
-                Book Your Free Workflow Audit &rarr;
+                Get my free Google Profile audit &rarr;
               </a>
               <a 
                 href="#how-we-work-section" 
@@ -277,19 +284,23 @@ export default function App() {
               </a>
             </div>
             
-            {/* Trust Matrix */}
+            <p className="text-sm text-slate-400 pt-1 max-w-2xl">
+              Audit is free. Websites start at $3K–$5K with a $300/mo automation retainer. First-cohort pricing, capped at 5 contractors.
+            </p>
+
+            {/* Founder Credentials */}
             <div className="w-full pt-6 border-t border-white/10 grid grid-cols-3 gap-6">
               <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-white">127+</div>
-                <div className="text-xs md:text-sm text-slate-400">SMBs Automated <span className="text-[10px] text-indigo-400 block font-mono">[DEMO DATA]</span></div>
+                <div className="text-2xl md:text-3xl font-extrabold font-display text-white">8 yrs</div>
+                <div className="text-xs md:text-sm text-slate-400">Inside Web.com, Realtor.com, TheKnot.com helping SMB owners with marketing, websites, and lead flow.</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">11 Hrs</div>
-                <div className="text-xs md:text-sm text-slate-400">Avg. Saving/Week <span className="text-[10px] text-indigo-400 block font-mono">[DEMO DATA]</span></div>
+                <div className="text-2xl md:text-3xl font-extrabold font-display text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">$3B</div>
+                <div className="text-xs md:text-sm text-slate-400">Retention revenue surfaced from a 3M-transaction prediction model.</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-indigo-400">{"<30 Days"}</div>
-                <div className="text-xs md:text-sm text-slate-400">Avg. ROI Period <span className="text-[10px] text-indigo-400 block font-mono">[DEMO DATA]</span></div>
+                <div className="text-2xl md:text-3xl font-extrabold font-display text-indigo-400">4 yrs</div>
+                <div className="text-xs md:text-sm text-slate-400">Production DBA — MSSQL, Postgres, Python automation.</div>
               </div>
             </div>
           </div>
@@ -369,10 +380,10 @@ export default function App() {
         <div className="max-w-5xl mx-auto relative z-10 flex flex-col space-y-12">
           
           <div className="text-center space-y-3">
-            <span className="text-amber-400 font-semibold tracking-wider text-xs uppercase font-mono">ROI Calculator</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white">How much does manual busywork cost your business?</h2>
+            <span className="text-amber-400 font-semibold tracking-wider text-xs uppercase font-mono">Leads Calculator</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white">How much revenue is going to your competitor?</h2>
             <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto">
-              Most business owners underestimate the financial toll of manual pipeline administration. Adjust the sliders below to see your potential savings.
+              Most contractors don't know how much business they're leaving on the table from a slow website and a weak Google profile. Move the sliders to see — and what a typical Stoneveil lift would be worth to you.
             </p>
           </div>
 
@@ -381,107 +392,82 @@ export default function App() {
             {/* Control Sliders */}
             <div className="lg:col-span-7 bg-slate-950/60 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6 flex flex-col justify-between">
               
-              {/* Slider 1: Employee Count */}
+              {/* Slider 1: Monthly local searches */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <User className="w-4 h-4 text-indigo-400" />
-                    <span>Active employees on admin:</span>
+                    <TrendingUp className="w-4 h-4 text-indigo-400" />
+                    <span>Monthly local searches for your trade in your area:</span>
                   </label>
                   <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    {empCount} staff
+                    {estMonthlySearches}
                   </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="100" 
-                  value={empCount} 
-                  onChange={(e) => setEmpCount(parseInt(e.target.value))}
+                <input
+                  type="range"
+                  min="20"
+                  max="500"
+                  value={estMonthlySearches}
+                  onChange={(e) => setEstMonthlySearches(parseInt(e.target.value))}
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>1 employee</span>
-                  <span>50</span>
-                  <span>100 employees</span>
+                  <span>20 searches</span>
+                  <span>250</span>
+                  <span>500+ searches</span>
                 </div>
               </div>
 
-              {/* Slider 2: Data transfer work */}
+              {/* Slider 2: Current close rate */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <Layers className="w-4 h-4 text-indigo-400" />
-                    <span>Data Entry / CRM copy hours per person / week:</span>
+                    <Phone className="w-4 h-4 text-indigo-400" />
+                    <span>Searchers who actually call & book you today:</span>
                   </label>
                   <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    {dataHours} hrs/wk
+                    {estCloseRate}%
                   </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="40" 
-                  value={dataHours} 
-                  onChange={(e) => setDataHours(parseInt(e.target.value))}
+                <input
+                  type="range"
+                  min="5"
+                  max="40"
+                  value={estCloseRate}
+                  onChange={(e) => setEstCloseRate(parseInt(e.target.value))}
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>1 hr</span>
-                  <span>20 hrs</span>
-                  <span>40 hrs</span>
+                  <span>5%</span>
+                  <span>20%</span>
+                  <span>40%</span>
                 </div>
               </div>
 
-              {/* Slider 3: Chasing follow ups */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <Mail className="w-4 h-4 text-indigo-400" />
-                    <span>Invoicing, email chasing, Scheduling hours / week:</span>
-                  </label>
-                  <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    {followHours} hrs/wk
-                  </span>
-                </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="40" 
-                  value={followHours} 
-                  onChange={(e) => setFollowHours(parseInt(e.target.value))}
-                  className="w-full accent-indigo-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>1 hr</span>
-                  <span>20 hrs</span>
-                  <span>40 hrs</span>
-                </div>
-              </div>
-
-              {/* Slider 4: Labor Rate */}
+              {/* Slider 3: Average ticket */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
                     <DollarSign className="w-4 h-4 text-indigo-400" />
-                    <span>Estimated hourly compensation rate:</span>
+                    <span>Average ticket per job:</span>
                   </label>
                   <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    ${hourlyRate}/hr
+                    ${estTicket}
                   </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="15" 
-                  max="120" 
-                  value={hourlyRate} 
-                  onChange={(e) => setHourlyRate(parseInt(e.target.value))}
+                <input
+                  type="range"
+                  min="100"
+                  max="5000"
+                  step="50"
+                  value={estTicket}
+                  onChange={(e) => setEstTicket(parseInt(e.target.value))}
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>$15/hr</span>
-                  <span>$60/hr</span>
-                  <span>$120/hr</span>
+                  <span>$100</span>
+                  <span>$2,500</span>
+                  <span>$5,000+</span>
                 </div>
               </div>
 
@@ -492,32 +478,32 @@ export default function App() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="space-y-5">
-                <span className="text-[11px] font-bold font-mono tracking-wider text-indigo-350 block uppercase">Calculated Business Costs Saved</span>
-                
+                <span className="text-[11px] font-bold font-mono tracking-wider text-indigo-350 block uppercase">Revenue going to your competitor</span>
+
                 <div className="space-y-1">
-                  <p className="text-slate-400 text-sm font-medium">Recaptured Productive Time:</p>
+                  <p className="text-slate-400 text-sm font-medium">Left on the table each month:</p>
                   <p className="text-4xl md:text-5xl font-extrabold font-display text-white tracking-tight flex items-baseline">
-                    {totalAnnualHoursSaved.toLocaleString()} 
-                    <span className="text-sm font-semibold text-slate-300 ml-2">hrs/year</span>
+                    ${monthlyRevenueAtStake.toLocaleString()}
+                    <span className="text-sm font-semibold text-slate-300 ml-2">/ month</span>
                   </p>
                 </div>
 
                 <div className="space-y-1 pt-1">
-                  <p className="text-slate-400 text-sm font-medium">Est. Financial Bottomline Contribution:</p>
+                  <p className="text-slate-400 text-sm font-medium">Annual revenue from a 10-point close-rate lift:</p>
                   <p className="text-4xl md:text-5xl font-extrabold font-display text-emerald-400 tracking-tight flex items-baseline">
-                    ${totalAnnualSavings.toLocaleString()}
-                    <span className="text-sm font-semibold text-slate-300 ml-2">Saved / yr</span>
+                    ${annualRevenueAtStake.toLocaleString()}
+                    <span className="text-sm font-semibold text-slate-300 ml-2">/ year</span>
                   </p>
                 </div>
-                
+
                 <div className="pt-3 border-t border-white/15 grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-slate-400 text-[11px] block">Weekly Saved Hours</span>
-                    <span className="text-white font-extrabold font-mono text-lg">{Math.round(totalWeeklyHoursSaved)} hrs</span>
+                    <span className="text-slate-400 text-[11px] block">Current Monthly Revenue From Search</span>
+                    <span className="text-white font-extrabold font-mono text-lg">${currentMonthlyRevenue.toLocaleString()}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 text-[11px] block">Projected Break-Even</span>
-                    <span className="text-white font-extrabold font-mono text-lg">{ROIWeeks <= 0.5 ? 'Instant' : `~ ${ROIWeeks} weeks`}</span>
+                    <span className="text-slate-400 text-[11px] block">Extra Jobs Per Month</span>
+                    <span className="text-white font-extrabold font-mono text-lg">{monthlyJobsAtStake} jobs</span>
                   </div>
                 </div>
               </div>
@@ -527,7 +513,7 @@ export default function App() {
                   onClick={claimSavings}
                   className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-sm md:text-base cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 inline-flex items-center justify-center space-x-2"
                 >
-                  <span>Claim My {totalAnnualHoursSaved.toLocaleString()} Saved Hours →</span>
+                  <span>Show me what I'm missing →</span>
                 </button>
                 <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-450">
                   <span>🔒</span>
@@ -719,116 +705,101 @@ export default function App() {
       <section className="py-24 px-6 bg-slate-50 border-b border-slate-150">
         <div className="max-w-7xl mx-auto flex flex-col space-y-16 items-center">
           
-          <div className="text-center space-y-3 max-w-2xl">
-            <span className="text-indigo-600 font-bold tracking-wider text-xs uppercase font-mono">Real Operator Results</span>
+          <div className="text-center space-y-3 max-w-3xl">
+            <span className="text-indigo-600 font-bold tracking-wider text-xs uppercase font-mono">Why Stoneveil</span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              What SMB Owners Are Saying
+              Built by someone who's spent the last decade inside the small-business marketing problem.
             </h2>
             <p className="text-slate-600 text-base md:text-lg">
-              [PLACEHOLDER — REPLACE WITH REAL TESTIMONIALS]
+              Most "AI consultants" can pitch you a website. Almost none can audit your data layer, build the automation, AND train you on what good lead flow actually looks like. That's the combination Stoneveil is.
             </p>
           </div>
 
           {/* Testimonial cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
             
-            {/* Testimonial 1 */}
+            {/* Credential 1: SMB Marketing */}
             <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <span className="absolute top-4 right-6 text-slate-100 font-serif text-6xl group-hover:text-indigo-50 pointer-events-none">&ldquo;</span>
               <div className="space-y-4">
                 <span className="inline-block bg-emerald-50 text-emerald-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  📈 Saved 14 hours/week in CRM manual chores
+                  📞 SMB MARKETING — 8 YEARS
                 </span>
-                <p class="text-slate-650 text-sm leading-relaxed italic relative z-10">
-                  "Before stoneVEIL, we spent two hours every day manually copying client requests from web-forms into lead cards. They automated the entire pipeline hands-free. It has run perfectly since day one."
+                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
+                  I spent 8 years inside Web.com, Realtor.com, and TheKnot.com walking small business owners through exactly what was working in their marketing and what wasn't. At Realtor.com I trained agents on Opcity — the live-leads-by-phone system that's pretty much the same motion I'm building for your business now.
                 </p>
               </div>
               <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-slate-100 font-bold text-slate-600 flex items-center justify-center font-display">
-                  MC
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Marcus Chen</p>
-                  <p className="text-xs text-slate-500">Founder, Chen Realty Partners // Real Estate</p>
+                  <p className="text-sm font-bold text-slate-900">Phone-by-phone with SMB owners</p>
+                  <p className="text-xs text-slate-500">Web.com · Realtor.com · TheKnot.com</p>
                 </div>
               </div>
             </div>
 
-            {/* Testimonial 2 */}
+            {/* Credential 2: Production DBA */}
             <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <span className="absolute top-4 right-6 text-slate-100 font-serif text-6xl group-hover:text-indigo-50 pointer-events-none">&ldquo;</span>
               <div className="space-y-4">
                 <span className="inline-block bg-indigo-50 text-indigo-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  🎯 Boosted booking conversions by 30%
+                  💻 PRODUCTION DBA — 4 YEARS
                 </span>
-                <p class="text-slate-650 text-sm leading-relaxed italic relative z-10">
-                  "The AI conversational hook and scheduling dispatcher capture hot inquiries instantly. Leads schedule themselves straight onto our dashboard, and custom followups deploy under 60 seconds."
+                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
+                  MSSQL and Postgres in production. Python automation. Translation: I write the code that runs at 2am while you sleep — automating what your spreadsheets are doing today. Most "AI consultants" can't write the database layer. I do.
                 </p>
               </div>
               <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-slate-100 font-bold text-slate-600 flex items-center justify-center font-display">
-                  SD
+                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <Layers className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Sarah Dunlap</p>
-                  <p className="text-xs text-slate-500">Managing Partner, Dunlap Law Firm // Legal</p>
+                  <p className="text-sm font-bold text-slate-900">Code that runs while you sleep</p>
+                  <p className="text-xs text-slate-500">MSSQL · Postgres · Python</p>
                 </div>
               </div>
             </div>
 
-            {/* Testimonial 3 */}
+            {/* Credential 3: Prediction Model */}
             <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <span className="absolute top-4 right-6 text-slate-100 font-serif text-6xl group-hover:text-indigo-50 pointer-events-none">&ldquo;</span>
               <div className="space-y-4">
                 <span className="inline-block bg-teal-50 text-teal-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  💼 Manual invoicing error rate drops to 0%
+                  📊 PREDICTION MODEL — $3B SURFACED
                 </span>
-                <p class="text-slate-650 text-sm leading-relaxed italic relative z-10">
-                  "We manually matched timesheets to invoices for weeks. stoneVEIL programmatic APIs coordinate custom Stripe and QuickBooks webhooks beautifully to handle reporting, saving us dozens of administrative days."
+                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
+                  I built a model that scored 3 million transactions on migration likelihood. It surfaced $3 billion in revenue a Fortune-class business was silently leaving on the table. Cluster analysis, forecasting, feature engineering — same techniques scale down to small contractor jobs.
                 </p>
               </div>
               <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-slate-100 font-bold text-slate-600 flex items-center justify-center font-display">
-                  JL
+                <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Jim Larrison</p>
-                  <p className="text-xs text-slate-500">Operations Director, Apex Medical Lab // Medical</p>
+                  <p className="text-sm font-bold text-slate-900">$3B revenue surfaced</p>
+                  <p className="text-xs text-slate-500">Cluster analysis · Forecasting · Feature engineering</p>
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Trusted industry sectors */}
+          {/* Former employer trust strip */}
           <div className="w-full pt-8 border-t border-slate-200">
             <p className="text-center text-xs font-bold text-slate-400 font-mono tracking-widest uppercase mb-6">
-              [ADD CLIENT LOGOS] / TRUSTED ACROSS CRITICAL INDUSTRIES
+              Where this founder learned the small-business marketing problem
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">🏢</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Real Estate</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
+                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">Web<span className="text-indigo-600">.com</span></span>
+                <span className="text-[11px] text-slate-500 mt-1.5">SMB websites · SEO · SEM</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">⚖️</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Law Firms</span>
+              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
+                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">Realtor<span className="text-rose-600">.com</span></span>
+                <span className="text-[11px] text-slate-500 mt-1.5">Live-leads-by-phone (Opcity)</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">🩺</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Medical</span>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">🛒</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Retail & Ecom</span>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">🍽️</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Restaurants</span>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/60 flex items-center justify-center space-x-2 shadow-sm">
-                <span className="text-lg">📣</span>
-                <span className="text-xs font-bold text-slate-600 uppercase font-display">Agencies</span>
+              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
+                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">The<span className="text-emerald-600">Knot</span>.com</span>
+                <span className="text-[11px] text-slate-500 mt-1.5">Vendor listings · conversion</span>
               </div>
             </div>
           </div>
@@ -844,14 +815,29 @@ export default function App() {
           
           <div className="text-center space-y-4">
             <span className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/25 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400 font-mono">
-              📅 FREE 30-MINUTE DISCOVERY CALL
+              📅 FREE GOOGLE PROFILE AUDIT — 15 MIN CALL IF WE'RE A FIT
             </span>
             <h2 className="text-3xl md:text-5xl font-extrabold font-display text-white">
-              Get Your Free Workflow Audit
+              Get your free Google Profile audit.
             </h2>
             <p className="text-slate-350 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              In 30 minutes, you'll know exactly which 3 processes to automate first — and what ROI to expect. No sales pitch. No pressure. Genuine operational mechanics.
+              I'll pull your Google Business Profile, compare it to a top local competitor in your trade, and email you 3 specific things costing you jobs right now. If we're a fit, we hop on a 15-minute call. If not, the audit is yours to keep — no follow-ups, no nonsense.
             </p>
+          </div>
+
+          {/* Risk reversal panel */}
+          <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto">
+            <div className="flex items-start space-x-4">
+              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0 mt-1" />
+              <div>
+                <p className="text-white font-bold text-lg leading-tight mb-1">
+                  No-risk promise.
+                </p>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                  If your free audit doesn't surface at least 3 actionable wins for your business, you don't pay for the build. Replies to my emails go to a real person — me — not a noreply inbox.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Form and Outcome wrapper */}
@@ -860,14 +846,14 @@ export default function App() {
             {!success ? (
               <form onSubmit={handleFormSubmit} className="space-y-6">
                 
-                {/* Visual prefilled banner if ROI calculations exist */}
-                {totalAnnualHoursSaved > 200 && (
+                {/* Visual prefilled banner if calculator was used */}
+                {monthlyRevenueAtStake > 0 && customProcess.startsWith("From the leads calculator") && (
                   <div className="bg-indigo-950/80 border border-indigo-500/30 p-4 rounded-lg flex items-start space-x-3 text-indigo-200 text-xs">
                     <Sparkles className="w-5 h-5 text-indigo-400 shrink-0" />
                     <div>
-                      <p className="font-semibold text-white">Lead capture configured with ROI metrics!</p>
+                      <p className="font-semibold text-white">Lead capture pre-filled from your calculator.</p>
                       <p className="mt-0.5">
-                        We're mapping a strategy for <span className="font-bold text-amber-400">{empCount} employees</span> to save <span className="font-bold text-emerald-400">{totalAnnualHoursSaved} hours/year</span> (${totalAnnualSavings.toLocaleString()} value).
+                        Audit will target your <span className="font-bold text-amber-400">{estMonthlySearches} monthly searches</span> — a 10-point close-rate lift would mean <span className="font-bold text-emerald-400">${monthlyRevenueAtStake.toLocaleString()}/month</span> back to you (${annualRevenueAtStake.toLocaleString()}/year).
                       </p>
                     </div>
                   </div>

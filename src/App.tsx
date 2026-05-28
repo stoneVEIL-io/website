@@ -29,6 +29,12 @@ import {
   ChevronLeft
 } from 'lucide-react';
 
+declare global {
+  interface Window {
+    plausible?: (event: string, options?: { props?: Record<string, string> }) => void;
+  }
+}
+
 export default function App() {
   // Navigation & Interactive States
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -61,9 +67,11 @@ export default function App() {
   // Submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [aiScore, setAiScore] = useState<'LOW' | 'MEDIUM' | 'HIGH' | null>(null);
+  const [aiTier, setAiTier] = useState<'hot' | 'warm' | 'cold' | null>(null);
   const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
   const [aiSummary, setAiSummary] = useState('');
+  const [aiMissingGbp, setAiMissingGbp] = useState<string[]>([]);
+  const [calendlyUrl, setCalendlyUrl] = useState<string | null>(null);
   const [isDemoRequestSent, setIsDemoRequestSent] = useState<Record<number, boolean>>({});
 
   // Mobile Sticky bottom bar visible on scroll
@@ -85,7 +93,27 @@ export default function App() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Fire form_view once when the lead-capture section scrolls into view
+    const formEl = document.getElementById('lead-capture-form');
+    let formObserver: IntersectionObserver | null = null;
+    if (formEl) {
+      formObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            window.plausible?.('form_view');
+            formObserver?.disconnect();
+          }
+        },
+        { threshold: 0.25 }
+      );
+      formObserver.observe(formEl);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      formObserver?.disconnect();
+    };
   }, []);
 
   const handleCopyCode = () => {
@@ -135,16 +163,19 @@ export default function App() {
       const data = await response.json();
       if (data.success) {
         setSuccess(true);
-        setAiScore(data.score || "HIGH");
+        setAiTier(data.tier || 'warm');
         setAiRecommendations(data.recommendations || []);
         setAiSummary(data.summary || "");
+        setAiMissingGbp(data.topMissingFromGBP || []);
+        setCalendlyUrl(data.calendlyUrl || null);
+        window.plausible?.('form_submit');
       } else {
         throw new Error(data.error || "Internal server error submitting lead information");
       }
     } catch (err) {
       console.warn("API not reachable; showing local fallback audit for sandbox preview:", err);
       setSuccess(true);
-      setAiScore("HIGH");
+      setAiTier('warm');
       setAiRecommendations([
         {
           title: `Fix your Google Business Profile basics for ${company}`,
@@ -163,6 +194,8 @@ export default function App() {
         }
       ]);
       setAiSummary(`Sandbox preview — these are placeholder recommendations. Set GEMINI_API_KEY on the server to run the live Google Profile audit for ${company} in ${serviceArea}.`);
+      setAiMissingGbp([]);
+      setCalendlyUrl(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -1015,9 +1048,9 @@ export default function App() {
                       <p className="text-xs text-slate-400">Scheduled: stoneVEIL Custom Discovery Strategy Team</p>
                     </div>
                   </div>
-                  <div className="bg-indigo-550/15 border border-indigo-400/30 text-indigo-300 font-mono text-xs px-3 py-1.5 rounded-lg flex items-center justify-center space-x-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-450 inline-block animate-pulse"></span>
-                    <span>AUTOMATION SCORE: <strong className="text-white ml-1">{aiScore} CANDIDATE</strong></span>
+                  <div className={`font-mono text-xs px-3 py-1.5 rounded-lg flex items-center justify-center space-x-2 border ${aiTier === 'hot' ? 'bg-amber-500/15 border-amber-400/30 text-amber-300' : aiTier === 'cold' ? 'bg-slate-700/40 border-slate-500/30 text-slate-400' : 'bg-indigo-550/15 border-indigo-400/30 text-indigo-300'}`}>
+                    <span className={`w-2 h-2 rounded-full inline-block animate-pulse ${aiTier === 'hot' ? 'bg-amber-400' : aiTier === 'cold' ? 'bg-slate-400' : 'bg-indigo-450'}`}></span>
+                    <span>FIT: <strong className="text-white ml-1">{aiTier ? aiTier.toUpperCase() : 'WARM'}</strong></span>
                   </div>
                 </div>
 
@@ -1073,28 +1106,70 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Return or call again guide */}
-                <div className="bg-[#0F1929]/80 border border-indigo-500/20 p-5 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="space-y-1 text-center md:text-left">
-                    <p className="text-sm font-bold text-white flex items-center justify-center md:justify-start space-x-1.5">
-                      <span>📆 Next Action item: Check your inbox</span>
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      We've dispatched scheduling instructions to <strong className="text-slate-250">{email}</strong>. Reach us directly: <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline">origin@stoneveil.io</a>
-                    </p>
+                {/* GBP gaps callout — only shown when data is available */}
+                {aiMissingGbp.length > 0 && (
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 space-y-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">Quick wins spotted in your Google Profile</p>
+                    <ul className="space-y-1.5">
+                      {aiMissingGbp.map((gap, i) => (
+                        <li key={i} className="flex items-start space-x-2 text-xs text-slate-300">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                          <span>{gap}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <button
-                    onClick={() => {
-                      setSuccess(false);
-                      setTrade('');
-                      setServiceArea('');
-                      setCurrentLeadSource('');
-                    }}
-                    className="bg-transparent hover:bg-white/5 text-slate-300 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
-                  >
-                    Submit another lead
-                  </button>
-                </div>
+                )}
+
+                {/* Tier-aware next step */}
+                {aiTier === 'hot' && calendlyUrl ? (
+                  <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-6 space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold text-white flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>You're a strong fit — book your free 15-minute call now.</span>
+                      </p>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        We'll walk through your Google Profile gaps and exactly what fixing them is worth to your business. Audit summary sent to <strong className="text-slate-300">{email}</strong>.
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                      <a
+                        href={calendlyUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => window.plausible?.('calendly_clicked')}
+                        className="inline-flex items-center justify-center space-x-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm py-3 px-6 rounded-lg transition-all hover:-translate-y-0.5"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        <span>Book my free 15-minute call &rarr;</span>
+                      </a>
+                      <button
+                        onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); }}
+                        className="bg-transparent hover:bg-white/5 text-slate-400 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
+                      >
+                        Submit another
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-[#0F1929]/80 border border-indigo-500/20 p-5 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="space-y-1 text-center md:text-left">
+                      <p className="text-sm font-bold text-white flex items-center justify-center md:justify-start space-x-1.5">
+                        <span>📆 We'll follow up within 1 business day.</span>
+                      </p>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Audit summary sent to <strong className="text-slate-300">{email}</strong>. Reply to that email or reach us at <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline">origin@stoneveil.io</a>.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); }}
+                      className="bg-transparent hover:bg-white/5 text-slate-300 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
+                    >
+                      Submit another
+                    </button>
+                  </div>
+                )}
 
               </div>
             )}

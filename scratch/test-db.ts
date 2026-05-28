@@ -1,23 +1,16 @@
-import dotenv from "dotenv";
+import "dotenv/config";
+import { db } from "../lib/db";
+import { sql } from "drizzle-orm";
 
-// Load .env from workspace root
-dotenv.config();
-
-async function testConnection() {
-  console.log("Testing connection with DATABASE_URL:", process.env.DATABASE_URL);
-  
+async function run() {
+  console.log("Checking database connection...");
   try {
-    // Dynamically import db modules to ensure dotenv has initialized first
-    const { db } = await import("../lib/db");
-    const { leads } = await import("../lib/schema");
-
-    console.log("Querying database using Drizzle client...");
-    const result = await db.select().from(leads).limit(1);
-    console.log("Query completed successfully. Result:", result);
-  } catch (error: any) {
-    console.error("Database query failed:");
-    console.error(error);
+    const result = await db.execute(sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`);
+    console.log("Database connection successful!");
+    console.log("Existing public tables:", result);
+  } catch (error) {
+    console.error("Database connection failed:", error);
   }
 }
 
-testConnection();
+run();

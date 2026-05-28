@@ -2,7 +2,6 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
-import { createServer as createViteServer } from "vite";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { db } from "./lib/db";
@@ -14,26 +13,43 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const IS_PROD = process.env.NODE_ENV === "production";
+
+// Enable trust proxy in production behind Cloud Run reverse proxies
+if (IS_PROD) {
+  app.set("trust proxy", 1);
+}
 
 // Enable helmet for security headers
-// Configure CSP rules dynamically to allow inline resources needed by Vite developer server
+// Configure CSP rules dynamically: strict in production, permissive in dev for Vite HMR
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https://*"],
-        connectSrc: ["'self'", "https://*"],
-      },
-    },
+    contentSecurityPolicy: IS_PROD
+      ? {
+          directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"], // Strip unsafe-inline and unsafe-eval in production
+            styleSrc: ["'self'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:"],
+            connectSrc: ["'self'"],
+          },
+        }
+      : {
+          directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https://*"],
+            connectSrc: ["'self'", "https://*"],
+          },
+        },
   })
 );
 
-// Enable JSON body parsed inputs
-app.use(express.json());
+// Enable JSON body parsed inputs with limit to prevent DoS
+app.use(express.json({ limit: "10kb" }));
 
 // Set up rate limiter for lead generation endpoint (max 5 requests per 15 minutes per IP)
 const leadLimiter = rateLimit({
@@ -217,6 +233,7 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
 const startServer = async () => {
   if (process.env.NODE_ENV !== "production") {
     // Development Mode: Mount Vite client middleware dynamically
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

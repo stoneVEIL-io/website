@@ -118,7 +118,26 @@ Exactly 4-5 services. Exactly 3 trustPoints. No markdown.`;
 }
 
 function escHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+}
+
+// Validates that a URL has an http/https/tel scheme before using it as an href.
+// Rejects javascript:, data:, and other potentially dangerous schemes.
+function safeLinkHref(url: string, allowedSchemes = ["https:", "http:"]): string {
+  if (!url) return "#";
+  try {
+    const parsed = new URL(url);
+    if (!allowedSchemes.includes(parsed.protocol)) return "#";
+    return escHtml(url);
+  } catch {
+    return "#";
+  }
+}
+
+function safePhoneHref(phone: string): string {
+  if (!phone) return "#";
+  const digits = phone.replace(/\D/g, "");
+  return digits.length >= 7 ? `tel:${digits}` : "#";
 }
 
 function buildReviewsHtml(gbp: GbpData): string {
@@ -166,10 +185,11 @@ function buildHoursHtml(gbp: GbpData): string {
 export function buildDemoHtml(input: DemoInput, copy: DemoCopy): string {
   const { businessName, trade, cityState, gbpData } = input;
   const phone = gbpData?.phone ?? "";
-  const phoneHref = phone ? `tel:${phone.replace(/\D/g, "")}` : "#";
+  const phoneHref = safePhoneHref(phone);
   const rating = gbpData?.rating;
   const reviewCount = gbpData?.reviewCount ?? 0;
   const website = gbpData?.website ?? "";
+  const websiteHref = safeLinkHref(website);
 
   const ratingBadge =
     rating != null
@@ -286,7 +306,7 @@ export function buildDemoHtml(input: DemoInput, copy: DemoCopy): string {
           <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin:0 0 12px;">Get in Touch</h3>
           ${phone ? `<p style="font-size:14px;color:#475569;margin:0 0 8px;">📞 <a href="${phoneHref}" style="color:#6366f1;font-weight:600;">${escHtml(phone)}</a></p>` : ""}
           <p style="font-size:14px;color:#475569;margin:0 0 8px;">📍 ${escHtml(cityState)}</p>
-          ${website ? `<p style="font-size:14px;color:#475569;margin:0;"><a href="${escHtml(website)}" style="color:#6366f1;font-weight:600;" target="_blank" rel="noopener">Visit Website</a></p>` : ""}
+          ${websiteHref !== "#" ? `<p style="font-size:14px;color:#475569;margin:0;"><a href="${websiteHref}" style="color:#6366f1;font-weight:600;" target="_blank" rel="noopener noreferrer">Visit Website</a></p>` : ""}
         </div>
       </div>
     </div>

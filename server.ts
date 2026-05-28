@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { timingSafeEqual } from "crypto";
 import express from "express";
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
@@ -60,15 +61,22 @@ app.use(
 // Enable JSON body parsed inputs with limit to prevent DoS
 app.use(express.json({ limit: "10kb" }));
 
-// Set up rate limiter for lead generation endpoint (max 5 requests per 15 minutes per IP)
+// Lead endpoint: 5 requests per 15 minutes per IP
 const leadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 5,
-  standardHeaders: true,
+  standardHeaders: false,
   legacyHeaders: false,
-  message: {
-    error: "Too many lead audit requests from this IP. Please try again after 15 minutes."
-  }
+  message: { error: "Too many lead audit requests from this IP. Please try again after 15 minutes." },
+});
+
+// Admin demo endpoint: 20 requests per hour per IP (single operator, generous headroom)
+const adminLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: false,
+  legacyHeaders: false,
+  message: { error: "Too many admin requests." },
 });
 
 // Initialize server-side Gemini safely
@@ -113,7 +121,8 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
       estTicket,
     } = validation.data!;
 
-    console.log(`Received lead: ${name} at ${company} — ${trade} in ${serviceArea}, lead source: "${currentLeadSource}"`);
+    const maskedEmail = email.replace(/(?<=^.{3})[^@]+(?=@)/, "***");
+    console.log(`Received lead: ${name} at ${company} — ${trade} in ${serviceArea}, source: "${currentLeadSource}"`);
 
     // Fetch GBP data and run AI audit concurrently where possible
     const auditParams = {
@@ -137,7 +146,7 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
       ? await runAudit(auditParams, ai)
       : buildFallbackAudit(auditParams);
 
-    console.log(`Audit complete for ${email}: score=${audit.score} tier=${audit.tier}`);
+    console.log(`Audit complete for ${maskedEmail}: score=${audit.score} tier=${audit.tier}`);
 
     // Persist lead with qualification data
     try {
@@ -154,7 +163,7 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
         qualificationScore: audit.score,
         qualificationTier: audit.tier,
       });
-      console.log(`Lead persisted for ${email}`);
+      console.log(`Lead persisted for ${maskedEmail}`);
     } catch (dbError) {
       console.error("Failed to persist lead to database:", dbError);
     }
@@ -197,8 +206,22 @@ function requireAdminAuth(req: express.Request, res: express.Response, next: exp
     res.status(401).end();
     return;
   }
-  const [, password] = Buffer.from(encoded, "base64").toString().split(":");
-  if (password !== ADMIN_PASSWORD) {
+  // Use indexOf to preserve colons within the password itself
+  const decoded = Buffer.from(encoded, "base64").toString();
+  const colonIdx = decoded.indexOf(":");
+  const password = colonIdx >= 0 ? decoded.slice(colonIdx + 1) : "";
+
+  // Constant-time comparison to prevent timing oracle attacks
+  let authorised = false;
+  try {
+    const a = Buffer.from(password);
+    const b = Buffer.from(ADMIN_PASSWORD);
+    authorised = a.length === b.length && timingSafeEqual(a, b);
+  } catch {
+    authorised = false;
+  }
+
+  if (!authorised) {
     res.setHeader("WWW-Authenticate", 'Basic realm="Stoneveil Admin"');
     res.status(401).end();
     return;
@@ -241,13 +264,14 @@ const ADMIN_FORM_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-app.get("/admin/demo", requireAdminAuth, (_req, res) => {
+app.get("/admin/demo", adminLimiter, requireAdminAuth, (_req, res) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(ADMIN_FORM_HTML);
 });
 
 app.post(
   "/admin/demo",
+  adminLimiter,
   requireAdminAuth,
   express.urlencoded({ extended: false }),
   async (req, res) => {
@@ -280,7 +304,8 @@ function buildCalendlyUrl(tier: string, name: string, email: string): string | n
     url.searchParams.set("email", email);
     return url.toString();
   } catch {
-    return base;
+    console.warn("CALENDLY_URL is not a valid URL — Calendly link disabled.");
+    return null;
   }
 }
 

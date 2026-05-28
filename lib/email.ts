@@ -11,14 +11,23 @@ export interface SendAuditEmailParams {
   calendlyUrl: string | null;
 }
 
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 function buildRecommendationRow(rec: { title: string; description: string; roi: string }): string {
   return `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
       <tr>
         <td style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #6366f1;padding:16px;border-radius:8px;">
-          <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#1e293b;line-height:1.4;">${rec.title}</p>
-          <p style="margin:0 0 8px;font-size:13px;color:#64748b;line-height:1.65;">${rec.description}</p>
-          <p style="margin:0;font-size:12px;color:#059669;font-weight:600;">⚡ ${rec.roi}</p>
+          <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#1e293b;line-height:1.4;">${esc(rec.title)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#64748b;line-height:1.65;">${esc(rec.description)}</p>
+          <p style="margin:0;font-size:12px;color:#059669;font-weight:600;">⚡ ${esc(rec.roi)}</p>
         </td>
       </tr>
     </table>`;
@@ -29,7 +38,7 @@ function buildGbpGapsSection(gaps: string[]): string {
   const items = gaps
     .map(
       (g) =>
-        `<tr><td style="padding:5px 0;font-size:13px;color:#92400e;line-height:1.5;">&#9888;&#xFE0F; ${g}</td></tr>`
+        `<tr><td style="padding:5px 0;font-size:13px;color:#92400e;line-height:1.5;">&#9888;&#xFE0F; ${esc(g)}</td></tr>`
     )
     .join("");
   return `
@@ -51,7 +60,7 @@ function buildCtaSection(tier: "hot" | "warm" | "cold", calendlyUrl: string | nu
           <td style="background:#0F1929;padding:24px;border-radius:10px;text-align:center;">
             <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#ffffff;">Based on your profile, you're a strong fit for the Stoneveil offer.</p>
             <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;line-height:1.6;">Book a free 15-minute Google Profile review — I'll walk you through your 3 biggest gaps and what fixing them is worth to your business.</p>
-            <a href="${calendlyUrl}" style="display:inline-block;background:#f59e0b;color:#1e293b;font-weight:800;font-size:14px;text-decoration:none;padding:14px 28px;border-radius:8px;">Book your free 15-minute call &rarr;</a>
+            <a href="${esc(calendlyUrl)}" style="display:inline-block;background:#f59e0b;color:#1e293b;font-weight:800;font-size:14px;text-decoration:none;padding:14px 28px;border-radius:8px;">Book your free 15-minute call &rarr;</a>
             <p style="margin:14px 0 0;font-size:11px;color:#64748b;">No commitment. If the audit doesn't surface 3 actionable wins, you don't pay.</p>
           </td>
         </tr>
@@ -99,10 +108,10 @@ function buildEmailHtml(params: SendAuditEmailParams): string {
                 <tr>
                   <td>
                     <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">stone<span style="color:#6366f1;">VEIL</span> <span style="font-size:11px;color:#94a3b8;font-family:monospace;background:rgba(255,255,255,0.07);padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);">Operations</span></p>
-                    <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Google Profile Audit &mdash; ${company} &middot; ${serviceArea}</p>
+                    <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Google Profile Audit &mdash; ${esc(company)} &middot; ${esc(serviceArea)}</p>
                   </td>
                   <td align="right" valign="top">
-                    <span style="display:inline-block;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:${tierColor};font-family:monospace;text-transform:uppercase;letter-spacing:1px;">${tierLabel}</span>
+                    <span style="display:inline-block;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:${esc(tierColor)};font-family:monospace;text-transform:uppercase;letter-spacing:1px;">${esc(tierLabel)}</span>
                   </td>
                 </tr>
               </table>
@@ -113,9 +122,9 @@ function buildEmailHtml(params: SendAuditEmailParams): string {
           <tr>
             <td style="padding:32px;">
 
-              <p style="margin:0 0 20px;font-size:16px;color:#1e293b;font-weight:400;">Hi ${firstName},</p>
+              <p style="margin:0 0 20px;font-size:16px;color:#1e293b;font-weight:400;">Hi ${esc(firstName)},</p>
 
-              <p style="margin:0 0 28px;font-size:14px;line-height:1.75;color:#475569;">${audit.summary}</p>
+              <p style="margin:0 0 28px;font-size:14px;line-height:1.75;color:#475569;">${esc(audit.summary)}</p>
 
               <p style="margin:0 0 14px;font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Your 3 Recommended Quick Wins</p>
 
@@ -132,7 +141,7 @@ function buildEmailHtml(params: SendAuditEmailParams): string {
           <tr>
             <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;">
               <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.7;">
-                This audit was generated for <strong style="color:#64748b;">${company}</strong> (${trade}) in ${serviceArea}.<br>
+                This audit was generated for <strong style="color:#64748b;">${esc(company)}</strong> (${esc(trade)}) in ${esc(serviceArea)}.<br>
                 Reply to this email &mdash; it goes straight to my inbox. I read every one.<br>
                 <span style="color:#cbd5e1;">stoneVEIL Operations LLC</span>
               </p>

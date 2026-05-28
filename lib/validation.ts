@@ -43,8 +43,11 @@ export const ALLOWED_LEAD_SOURCES = [
 
 function sanitizeString(val: any): string {
   if (typeof val !== "string") return "";
-  let sanitized = val.replace(/<\/?[^>]+(>|$)/g, "");
-  return sanitized.trim();
+  return val
+    .replace(/\0/g, "")           // strip null bytes before any other processing
+    .replace(/<[^>]+>/g, "")      // strip complete tags
+    .replace(/<[^>]*$/g, "")      // strip orphaned opening angle bracket to end-of-string
+    .trim();
 }
 
 function clampInt(val: any, min: number, max: number): number | undefined {

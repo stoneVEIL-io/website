@@ -79,12 +79,12 @@ export default function App() {
 
   useEffect(() => {
     // Fetch and load standalone landing page source code for the export utility
-    fetch('/landing.html')
-      .then(r => r.text())
-      .then(text => setHtmlCode(text))
-      .catch(err => {
-        console.warn("Failed to load local HTML copy for developer view", err);
-      });
+    if (import.meta.env.DEV) {
+      fetch('/landing.html')
+        .then(r => r.text())
+        .then(text => setHtmlCode(text))
+        .catch(() => {});
+    }
 
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -218,35 +218,37 @@ export default function App() {
   return (
     <div className="bg-white text-slate-800 font-sans antialiased selection:bg-indigo-600 selection:text-white">
       
-      {/* EXPORT STANDALONE BAR (Top Level Developer Help HUD) */}
-      <div className="bg-slate-900 border-b border-white/10 text-white py-2.5 px-4 sticky top-0 z-50 text-xs flex flex-wrap gap-4 items-center justify-between shadow-md">
-        <div className="flex items-center space-x-2">
-          <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <p className="font-medium text-slate-300">
-            Developer Sandbox Mode: <span className="text-white">stoneVEIL Operations LLC</span> Lead Capture App Applet
-          </p>
+      {/* Dev-only export bar — hidden in production builds */}
+      {import.meta.env.DEV && (
+        <div className="bg-slate-900 border-b border-white/10 text-white py-2.5 px-4 sticky top-0 z-50 text-xs flex flex-wrap gap-4 items-center justify-between shadow-md">
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <p className="font-medium text-slate-300">
+              Developer Sandbox Mode: <span className="text-white">stoneVEIL Operations LLC</span>
+            </p>
+          </div>
+          <div className="flex items-center space-x-2.5">
+            <button
+              onClick={() => setIsExportOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-1 px-3 rounded text-[11px] transition duration-150 inline-flex items-center space-x-1"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Standalone HTML</span>
+            </button>
+            <a
+              href="/landing.html"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-transparent border border-white/20 hover:bg-white/5 text-slate-300 font-medium py-1 px-3 rounded text-[11px] transition"
+            >
+              Open Standalone Raw Page
+            </a>
+          </div>
         </div>
-        <div className="flex items-center space-x-2.5">
-          <button 
-            onClick={() => setIsExportOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-1 px-3 rounded text-[11px] transition duration-150 inline-flex items-center space-x-1"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Standalone HTML</span>
-          </button>
-          <a 
-            href="/landing.html" 
-            target="_blank" 
-            rel="noreferrer"
-            className="bg-transparent border border-white/20 hover:bg-white/5 text-slate-300 font-medium py-1 px-3 rounded text-[11px] transition"
-          >
-            Open Standalone Raw Page
-          </a>
-        </div>
-      </div>
+      )}
 
       {/* HEADER / NAVIGATION */}
-      <header className="bg-brand-navy p-5 px-6 md:px-12 border-b border-white/5 sticky top-[42px] z-40 bg-[#0F1929]/95 backdrop-blur-md">
+      <header className={`bg-brand-navy p-5 px-6 md:px-12 border-b border-white/5 sticky z-40 bg-[#0F1929]/95 backdrop-blur-md ${import.meta.env.DEV ? 'top-[42px]' : 'top-0'}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a href="#" className="flex items-center space-x-3 text-white">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
@@ -1385,8 +1387,8 @@ export default function App() {
         </a>
       </div>
 
-      {/* EXPORT STANDALONE HTML LIGHTBOX MODAL */}
-      {isExportOpen && (
+      {/* Dev-only export modal */}
+      {import.meta.env.DEV && isExportOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="bg-slate-900 border border-white/15 rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl relative animate-scale-up">
             

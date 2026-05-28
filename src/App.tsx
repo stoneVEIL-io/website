@@ -54,9 +54,9 @@ export default function App() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
-  const [phone, setPhone] = useState('');
-  const [strain, setStrain] = useState('');
-  const [customProcess, setCustomProcess] = useState('');
+  const [serviceArea, setServiceArea] = useState('');
+  const [trade, setTrade] = useState('');
+  const [currentLeadSource, setCurrentLeadSource] = useState('');
   
   // Submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,7 +112,7 @@ export default function App() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !company || !strain) return;
+    if (!name || !email || !company || !serviceArea || !trade || !currentLeadSource) return;
 
     setIsSubmitting(true);
     try {
@@ -123,18 +123,12 @@ export default function App() {
           name,
           email,
           company,
-          phone,
-          strain,
-          process: customProcess,
-          // Repurposed pending Task #4 schema migration:
-          //   roiHours  = monthly jobs at stake (10pp close-rate lift)
-          //   roiSavings = annual revenue at stake
-          roiHours: monthlyJobsAtStake,
-          roiSavings: annualRevenueAtStake,
-          // Raw inputs — server ignores these until Task #4 adds columns
+          trade,
+          serviceArea,
+          currentLeadSource,
           estMonthlySearches,
           estCloseRate,
-          estTicket
+          estTicket,
         })
       });
 
@@ -148,36 +142,33 @@ export default function App() {
         throw new Error(data.error || "Internal server error submitting lead information");
       }
     } catch (err) {
-      console.warn("Express API routes not responding or pending execution, initiating dynamic simulated B2B success plan:", err);
-      // Perfect Conversion CRO Fallback State (Ensures flawless offline UX, zero mock text)
+      console.warn("API not reachable; showing local fallback audit for sandbox preview:", err);
       setSuccess(true);
       setAiScore("HIGH");
       setAiRecommendations([
         {
-          title: `Automate manual data transfer for "${strain}"`,
-          description: `Direct database integration connecting incoming inquiries with operational spreadsheets instantly via secure webhook pipelines to eliminate double-handling.`,
-          roi: "Recovers up to 4.5 hours per week of direct supervisor time."
+          title: `Fix your Google Business Profile basics for ${company}`,
+          description: `Most ${trade.toLowerCase()} profiles in ${serviceArea} are missing hours, photos, or service categories — easy wins that lift Map-Pack ranking inside a week.`,
+          roi: "Recovers visibility on the searches you're already losing."
         },
         {
-          title: "Intelligent Client Follow-Up Trigger",
-          description: "Instantly alert and dispatch welcome sequences, calendar bookings, and follow-up emails in less than 60 seconds whenever a qualified lead interacts.",
-          roi: "Boosts booker onboarding conversion by an estimated 24%."
+          title: "Instant text-back when you can't pick up",
+          description: "Automated SMS reply within 60 seconds of any missed call, with a link to a quote form. Cuts the leak between phone ringing and competitor calling.",
+          roi: "Closes the gap that's costing you the most jobs."
         },
         {
-          title: "Comprehensive Billing & Reconciliation Flow",
-          description: "Connect timesheets and administrative entries into Stripe and QuickBooks bookkeeping to dispatch and track client invoices automatically.",
-          roi: "Reduces payment latency times and clerical billing error to 0%."
+          title: "After-hours coverage that books while you sleep",
+          description: "Weekend and after-5pm inquiries get acknowledged immediately and qualified into your inbox by morning — no more Monday-morning ghosting.",
+          roi: "Captures the leads currently dying in voicemail."
         }
       ]);
-      setAiSummary(`Your operations have premium candidates for AI integration. Because you are testing inside the sandbox, we generated these simulated recommendations. Set a valid GEMINI_API_KEY in Settings to qualify live leads using real AI!`);
+      setAiSummary(`Sandbox preview — these are placeholder recommendations. Set GEMINI_API_KEY on the server to run the live Google Profile audit for ${company} in ${serviceArea}.`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const claimSavings = () => {
-    setStrain("Lead generation & intake");
-    setCustomProcess(`From the leads calculator: ~${estMonthlySearches} monthly local searches × ${estCloseRate}% current close rate × $${estTicket} avg ticket. A 10-point close-rate lift would mean ~$${monthlyRevenueAtStake.toLocaleString()}/month ($${annualRevenueAtStake.toLocaleString()}/year) back to you.`);
     const element = document.getElementById("lead-capture-form");
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -845,19 +836,17 @@ export default function App() {
             
             {!success ? (
               <form onSubmit={handleFormSubmit} className="space-y-6">
-                
-                {/* Visual prefilled banner if calculator was used */}
-                {monthlyRevenueAtStake > 0 && customProcess.startsWith("From the leads calculator") && (
-                  <div className="bg-indigo-950/80 border border-indigo-500/30 p-4 rounded-lg flex items-start space-x-3 text-indigo-200 text-xs">
-                    <Sparkles className="w-5 h-5 text-indigo-400 shrink-0" />
-                    <div>
-                      <p className="font-semibold text-white">Lead capture pre-filled from your calculator.</p>
-                      <p className="mt-0.5">
-                        Audit will target your <span className="font-bold text-amber-400">{estMonthlySearches} monthly searches</span> — a 10-point close-rate lift would mean <span className="font-bold text-emerald-400">${monthlyRevenueAtStake.toLocaleString()}/month</span> back to you (${annualRevenueAtStake.toLocaleString()}/year).
-                      </p>
-                    </div>
+
+                {/* Calculator context line */}
+                <div className="bg-indigo-950/80 border border-indigo-500/30 p-4 rounded-lg flex items-start space-x-3 text-indigo-200 text-xs">
+                  <Sparkles className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-white">Your audit will use the leads-calculator inputs above.</p>
+                    <p className="mt-0.5">
+                      Targeting <span className="font-bold text-amber-400">{estMonthlySearches} monthly searches</span> at {estCloseRate}% close rate × ${estTicket} ticket — a 10-point close-rate lift would mean <span className="font-bold text-emerald-400">${monthlyRevenueAtStake.toLocaleString()}/month</span> (${annualRevenueAtStake.toLocaleString()}/year). Move the sliders above to adjust.
+                    </p>
                   </div>
-                )}
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
@@ -869,13 +858,13 @@ export default function App() {
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
                         <User className="w-4.5 h-4.5" />
                       </div>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="John Doe"
+                        placeholder="Jane Smith"
                       />
                     </div>
                   </div>
@@ -889,90 +878,101 @@ export default function App() {
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
                         <Mail className="w-4.5 h-4.5" />
                       </div>
-                      <input 
-                        type="email" 
+                      <input
+                        type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="john@company.com"
+                        placeholder="jane@acmeplumbing.com"
                       />
                     </div>
                   </div>
 
-                  {/* Company Name */}
+                  {/* Business Name */}
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Company Name <span className="text-amber-400">*</span>
+                      Business Name <span className="text-amber-400">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
                         <Building2 className="w-4.5 h-4.5" />
                       </div>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={company}
                         onChange={(e) => setCompany(e.target.value)}
                         className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="Acme Services Ltd"
+                        placeholder="Acme Plumbing"
                       />
                     </div>
                   </div>
 
-                  {/* Phone Number */}
+                  {/* City + State */}
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Phone Number <span className="text-slate-450 font-normal">(Optional, for booking coordination)</span>
+                      City and State <span className="text-amber-400">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <Phone className="w-4.5 h-4.5" />
+                        <Building2 className="w-4.5 h-4.5" />
                       </div>
-                      <input 
-                        type="tel" 
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                      <input
+                        type="text"
+                        required
+                        value={serviceArea}
+                        onChange={(e) => setServiceArea(e.target.value)}
                         className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="(555) 019-2834"
+                        placeholder="Denver, CO"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Primary Time Drain */}
+                {/* Trade */}
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                    What is your business's biggest operational bottleneck? <span className="text-amber-400">*</span>
+                    What's your trade? <span className="text-amber-400">*</span>
                   </label>
-                  <select 
+                  <select
                     required
-                    value={strain}
-                    onChange={(e) => setStrain(e.target.value)}
+                    value={trade}
+                    onChange={(e) => setTrade(e.target.value)}
                     className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base cursor-pointer appearance-none"
                   >
-                    <option value="" disabled>Select bottleneck category...</option>
-                    <option value="Customer follow-ups & CRM">Customer follow-ups & CRM management</option>
-                    <option value="Invoicing & payments">Invoicing, payment alerts & billing</option>
-                    <option value="Scheduling & calendar">Onboarding scheduling & calendars</option>
-                    <option value="Reporting & data entry">Manual CSV entries & reporting math</option>
-                    <option value="Lead generation & intake">Inbound lead logging & intake</option>
-                    <option value="Other">Other manual administration problems</option>
+                    <option value="" disabled>Select your trade...</option>
+                    <option value="Plumber">Plumber</option>
+                    <option value="Electrician">Electrician</option>
+                    <option value="HVAC">HVAC</option>
+                    <option value="Roofer">Roofer</option>
+                    <option value="Landscaping / lawn care">Landscaping / lawn care</option>
+                    <option value="General contractor / handyman">General contractor / handyman</option>
+                    <option value="Painter">Painter</option>
+                    <option value="Concrete / masonry">Concrete / masonry</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
-                {/* Optional Process Description */}
+                {/* Current lead source */}
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Briefly describe your current manual process <span className="text-slate-450 font-normal">(Optional)</span>
+                    Where do most of your leads come from today? <span className="text-amber-400">*</span>
                   </label>
-                  <textarea 
-                    rows={3} 
-                    value={customProcess}
-                    onChange={(e) => setCustomProcess(e.target.value)}
-                    className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base resize-none"
-                    placeholder="Describe how emails, files, or spreadsheets are handled manually..."
-                  />
+                  <select
+                    required
+                    value={currentLeadSource}
+                    onChange={(e) => setCurrentLeadSource(e.target.value)}
+                    className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base cursor-pointer appearance-none"
+                  >
+                    <option value="" disabled>Pick the closest match...</option>
+                    <option value="Google search (organic / Map Pack)">Google search (organic / Map Pack)</option>
+                    <option value="Word of mouth / referrals">Word of mouth / referrals</option>
+                    <option value="Facebook / Nextdoor">Facebook / Nextdoor</option>
+                    <option value="Paid ads (Google / Facebook)">Paid ads (Google / Facebook)</option>
+                    <option value="Lead-gen services (Angi, HomeAdvisor, Thumbtack)">Lead-gen services (Angi, HomeAdvisor, Thumbtack)</option>
+                    <option value="I don't really track it">I don't really track it</option>
+                  </select>
                 </div>
 
                 {/* Submit button */}
@@ -1025,7 +1025,7 @@ export default function App() {
                 <div className="space-y-1.5">
                   <p className="text-xs font-bold uppercase tracking-wider text-indigo-400 font-mono">Real-Time Lead Analysis Outcome</p>
                   <p className="text-sm md:text-base text-slate-200 leading-relaxed italic">
-                    "{aiSummary || `Based on your selected time drain: '${strain}', our systems qualified your potential. We drafted an audit of exactly 3 tactical actions you should automate first - completely custom to company ${company}.`}"
+                    "{aiSummary || `Audit drafted for ${company} (${trade}, ${serviceArea}). Here are 3 specific things in your Google Profile and lead-response loop that look like the easiest wins right now.`}"
                   </p>
                 </div>
 
@@ -1083,11 +1083,12 @@ export default function App() {
                       We've dispatched scheduling instructions to <strong className="text-slate-250">{email}</strong>. Reach us directly: <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline">origin@stoneveil.io</a>
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => {
                       setSuccess(false);
-                      setStrain('');
-                      setCustomProcess('');
+                      setTrade('');
+                      setServiceArea('');
+                      setCurrentLeadSource('');
                     }}
                     className="bg-transparent hover:bg-white/5 text-slate-300 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
                   >

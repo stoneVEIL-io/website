@@ -3,8 +3,13 @@ export interface ValidatedLead {
   email: string;
   company: string;
   phone?: string;
-  strain: string;
-  process?: string;
+  trade: string;
+  serviceArea: string;
+  currentLeadSource: string;
+  gbpUrl?: string;
+  estMonthlySearches?: number;
+  estCloseRate?: number;
+  estTicket?: number;
 }
 
 export interface ValidationResult {
@@ -13,56 +18,63 @@ export interface ValidationResult {
   data?: ValidatedLead;
 }
 
-// Simple email regex validation
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Allowed strain options
-const ALLOWED_STRAINS = [
-  "Customer follow-ups & CRM",
-  "Invoicing & payments",
-  "Scheduling & calendar",
-  "Reporting & data entry",
-  "Lead generation & intake",
-  "Other"
-];
+export const ALLOWED_TRADES = [
+  "Plumber",
+  "Electrician",
+  "HVAC",
+  "Roofer",
+  "Landscaping / lawn care",
+  "General contractor / handyman",
+  "Painter",
+  "Concrete / masonry",
+  "Other",
+] as const;
 
-/**
- * Strips HTML tags from a string to prevent XSS/injection attacks.
- */
+export const ALLOWED_LEAD_SOURCES = [
+  "Google search (organic / Map Pack)",
+  "Word of mouth / referrals",
+  "Facebook / Nextdoor",
+  "Paid ads (Google / Facebook)",
+  "Lead-gen services (Angi, HomeAdvisor, Thumbtack)",
+  "I don't really track it",
+] as const;
+
 function sanitizeString(val: any): string {
   if (typeof val !== "string") return "";
-  // Strip HTML tags
   let sanitized = val.replace(/<\/?[^>]+(>|$)/g, "");
-  // Trim whitespace
   return sanitized.trim();
 }
 
-/**
- * Validates and sanitizes the lead input payload.
- */
+function clampInt(val: any, min: number, max: number): number | undefined {
+  const n = typeof val === "number" ? val : parseInt(val, 10);
+  if (!Number.isFinite(n)) return undefined;
+  return Math.max(min, Math.min(max, Math.trunc(n)));
+}
+
 export function validateLeadInput(input: any): ValidationResult {
   const errors: string[] = [];
-  
+
   if (!input || typeof input !== "object") {
     return { isValid: false, errors: ["Invalid payload format."] };
   }
 
-  // Sanitize fields
   const name = sanitizeString(input.name);
   const email = sanitizeString(input.email);
   const company = sanitizeString(input.company);
   const phone = input.phone !== undefined && input.phone !== null ? sanitizeString(input.phone) : undefined;
-  const strain = sanitizeString(input.strain);
-  const processStr = input.process !== undefined && input.process !== null ? sanitizeString(input.process) : undefined;
+  const trade = sanitizeString(input.trade);
+  const serviceArea = sanitizeString(input.serviceArea);
+  const currentLeadSource = sanitizeString(input.currentLeadSource);
+  const gbpUrl = input.gbpUrl !== undefined && input.gbpUrl !== null ? sanitizeString(input.gbpUrl) : undefined;
 
-  // Validate Name
   if (!name) {
     errors.push("Name is required.");
   } else if (name.length > 100) {
     errors.push("Name must not exceed 100 characters.");
   }
 
-  // Validate Email
   if (!email) {
     errors.push("Email is required.");
   } else if (email.length > 254) {
@@ -71,29 +83,41 @@ export function validateLeadInput(input: any): ValidationResult {
     errors.push("Invalid email address format.");
   }
 
-  // Validate Company
   if (!company) {
-    errors.push("Company is required.");
+    errors.push("Business name is required.");
   } else if (company.length > 100) {
-    errors.push("Company name must not exceed 100 characters.");
+    errors.push("Business name must not exceed 100 characters.");
   }
 
-  // Validate Phone (optional)
   if (phone && phone.length > 30) {
     errors.push("Phone number must not exceed 30 characters.");
   }
 
-  // Validate Strain
-  if (!strain) {
-    errors.push("Operational bottleneck strain selection is required.");
-  } else if (!ALLOWED_STRAINS.includes(strain)) {
-    errors.push("Invalid operational bottleneck selection.");
+  if (!trade) {
+    errors.push("Trade selection is required.");
+  } else if (!ALLOWED_TRADES.includes(trade as typeof ALLOWED_TRADES[number])) {
+    errors.push("Invalid trade selection.");
   }
 
-  // Validate Process (optional)
-  if (processStr && processStr.length > 1000) {
-    errors.push("Process description must not exceed 1000 characters.");
+  if (!serviceArea) {
+    errors.push("City and state are required.");
+  } else if (serviceArea.length > 120) {
+    errors.push("City and state must not exceed 120 characters.");
   }
+
+  if (!currentLeadSource) {
+    errors.push("Current lead source is required.");
+  } else if (!ALLOWED_LEAD_SOURCES.includes(currentLeadSource as typeof ALLOWED_LEAD_SOURCES[number])) {
+    errors.push("Invalid lead source selection.");
+  }
+
+  if (gbpUrl && gbpUrl.length > 500) {
+    errors.push("Google Business Profile URL must not exceed 500 characters.");
+  }
+
+  const estMonthlySearches = clampInt(input.estMonthlySearches, 0, 100000);
+  const estCloseRate = clampInt(input.estCloseRate, 0, 100);
+  const estTicket = clampInt(input.estTicket, 0, 1000000);
 
   if (errors.length > 0) {
     return { isValid: false, errors };
@@ -107,8 +131,13 @@ export function validateLeadInput(input: any): ValidationResult {
       email,
       company,
       phone: phone || undefined,
-      strain,
-      process: processStr || undefined
-    }
+      trade,
+      serviceArea,
+      currentLeadSource,
+      gbpUrl: gbpUrl || undefined,
+      estMonthlySearches,
+      estCloseRate,
+      estTicket,
+    },
   };
 }

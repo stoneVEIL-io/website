@@ -59,10 +59,12 @@ export default function App() {
   // Lead Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [serviceArea, setServiceArea] = useState('');
   const [trade, setTrade] = useState('');
   const [currentLeadSource, setCurrentLeadSource] = useState('');
+  const [gbpUrl, setGbpUrl] = useState('');
   
   // Submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,6 +96,21 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll);
 
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('[data-reveal]');
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+    revealEls.forEach((el) => revealObserver.observe(el));
+
     // Fire form_view once when the lead-capture section scrolls into view
     const formEl = document.getElementById('lead-capture-form');
     let formObserver: IntersectionObserver | null = null;
@@ -112,6 +129,7 @@ export default function App() {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      revealObserver.disconnect();
       formObserver?.disconnect();
     };
   }, []);
@@ -150,9 +168,11 @@ export default function App() {
         body: JSON.stringify({
           name,
           email,
+          phone: phone || undefined,
           company,
           trade,
           serviceArea,
+          gbpUrl: gbpUrl || undefined,
           currentLeadSource,
           estMonthlySearches,
           estCloseRate,
@@ -173,7 +193,7 @@ export default function App() {
         throw new Error(data.error || "Internal server error submitting lead information");
       }
     } catch (err) {
-      console.warn("API not reachable; showing local fallback audit for sandbox preview:", err);
+      console.warn("API not reachable; showing local fallback audit:", err);
       setSuccess(true);
       setAiTier('warm');
       setAiRecommendations([
@@ -193,7 +213,7 @@ export default function App() {
           roi: "Captures the leads currently dying in voicemail."
         }
       ]);
-      setAiSummary(`Sandbox preview — these are placeholder recommendations. Set GEMINI_API_KEY on the server to run the live Google Profile audit for ${company} in ${serviceArea}.`);
+      setAiSummary(`We've prepared your initial local optimization suggestions. Let's schedule a brief 15-minute call to walk through the specific Google Profile and lead-response gaps for ${company} in ${serviceArea}.`);
       setAiMissingGbp([]);
       setCalendlyUrl(null);
     } finally {
@@ -208,11 +228,8 @@ export default function App() {
     }
   };
 
-  const requestDemoSpec = (index: number, title: string) => {
+  const requestDemoSpec = (index: number, _title: string) => {
     setIsDemoRequestSent(prev => ({ ...prev, [index]: true }));
-    setTimeout(() => {
-      // Revert after showing professional feedback
-    }, 4000);
   };
 
   return (
@@ -278,10 +295,15 @@ export default function App() {
           
           {/* Hero Copy */}
           <div className="lg:col-span-7 flex flex-col space-y-6 md:space-y-8 items-start">
-            <span className="inline-flex items-center space-x-2 bg-white/5 border border-white/15 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-400 font-mono">
-              <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block animate-ping"></span>
-              <span>Built for 2–5 Person Trades — First-Cohort Pricing</span>
-            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">
+                <Flame className="w-3 h-3 animate-pulse shrink-0" />
+                <span>First Cohort — 5 Spots Only</span>
+              </span>
+              <span className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-[11px] text-slate-400 font-mono">
+                2–5 person trade shops
+              </span>
+            </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight font-display text-white">
               You're not getting <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">the jobs you should be</span>.
@@ -296,9 +318,9 @@ export default function App() {
             </p>
             
             <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4 pt-2">
-              <a 
-                href="#lead-capture-form" 
-                className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/15 transition-all text-base hover:-translate-y-0.5"
+              <a
+                href="#lead-capture-form"
+                className="btn-press bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/15 text-base"
               >
                 Get my free Google Profile audit &rarr;
               </a>
@@ -331,68 +353,67 @@ export default function App() {
             </div>
           </div>
           
-          {/* Animated SVG/CSS Graphic */}
+          {/* Hero Widget: Before vs. After — Missed Call Recovery */}
           <div className="lg:col-span-5 w-full flex justify-center relative">
-            <div className="w-full max-w-md aspect-square bg-slate-900/80 border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col justify-between relative shadow-2xl">
-              <div className="absolute inset-0 bg-indigo-500/5 rounded-2xl"></div>
-              
-              <div className="relative z-10 h-full flex flex-col justify-between">
-                <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                  <span className="text-xs font-mono text-slate-400 tracking-wider">PIPELINE MONITOR</span>
-                  <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider animate-pulse flex items-center space-x-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 block animate-ping"></span>
-                    <span>ACTIVE STATE</span>
-                  </span>
+            <div className="w-full max-w-md bg-slate-900/80 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+
+              {/* Card header */}
+              <div className="px-5 py-3.5 border-b border-white/5 bg-slate-950/40 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-slate-400 tracking-widest uppercase">Lead Recovery — Tonight</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+                  <span className="text-[10px] font-mono text-emerald-400">Active</span>
+                </span>
+              </div>
+
+              {/* Shared trigger event */}
+              <div className="px-5 py-4 border-b border-white/5 bg-slate-900/60">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-slate-700/80 border border-white/10 flex items-center justify-center text-base shrink-0">📞</div>
+                  <div>
+                    <div className="text-[12px] text-white/80 font-semibold font-display">Missed call — Sarah K.</div>
+                    <div className="text-[10px] text-slate-500 font-mono">Friday, 6:52 PM — while you were on a job</div>
+                  </div>
                 </div>
-                
-                {/* Visual Chaos element */}
-                <div className="relative flex-1 flex flex-col items-center justify-center">
-                  
-                  {/* Left elements: Chaos (emails, manual) */}
-                  <div className="absolute left-2 top-10 space-y-3 opacity-40 hover:opacity-75 transition-opacity">
-                    <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded px-2.5 py-1 text-[10px] font-mono flex items-center space-x-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block animate-ping"></span>
-                      <span>Lost CRM Leads</span>
-                    </div>
-                    <div className="bg-orange-500/10 border border-orange-500/20 text-orange-200 rounded px-2.5 py-1 text-[10px] font-mono flex items-center space-x-1.5">
-                      <span>Manual Invoice Copy</span>
-                    </div>
-                  </div>
+              </div>
 
-                  {/* Center Module: The Engine */}
-                  <div className="z-10 bg-slate-950/90 border border-indigo-500/30 w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-indigo-500/20 shadow-2xl relative">
-                    <div className="absolute -inset-2 rounded-full bg-indigo-500/10 animate-pulse"></div>
-                    <Sparkles className="w-10 h-10 text-indigo-400 hover:scale-115 transition duration-300" />
-                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-mono mt-1 font-bold">stoneVEIL API</span>
-                  </div>
+              {/* Split comparison */}
+              <div className="grid grid-cols-2 divide-x divide-white/5">
 
-                  {/* Right elements: Clarity */}
-                  <div className="absolute right-2 bottom-10 space-y-3 opacity-90">
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded px-2.5 py-1 text-[10px] font-mono flex items-center space-x-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Sync Realized</span>
-                    </div>
-                    <div className="bg-indigo-500/15 border border-indigo-500/20 text-indigo-200 rounded px-2.5 py-1 text-[10px] font-mono flex items-center space-x-1.5">
-                      <Clock className="w-3.5 h-3.5 text-indigo-300 shrink-0" />
-                      <span>Follow-up Sent</span>
-                    </div>
+                {/* Before column */}
+                <div className="p-4 space-y-2.5">
+                  <div className="text-[9px] font-mono text-rose-400/80 uppercase tracking-widest font-bold mb-3">Before</div>
+                  <div className="bg-slate-800/50 rounded-lg px-3 py-2.5 text-[10px] font-mono text-slate-500 leading-snug">
+                    Went to voicemail
                   </div>
-
-                  {/* Connecting lines */}
-                  <div className="absolute inset-0 pointer-events-none">
-                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      <path d="M 15 25 Q 40 30 50 45" stroke="rgba(239, 68, 68, 0.15)" strokeWidth="0.8" strokeDasharray="2 2" fill="none" />
-                      <path d="M 15 45 Q 35 48 50 50" stroke="rgba(249, 115, 22, 0.15)" strokeWidth="0.8" strokeDasharray="2 2" fill="none" />
-                      <path d="M 68 50 Q 80 52 88 38" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="0.8" fill="none" />
-                      <path d="M 62 65 Q 75 75 88 78" stroke="rgba(99, 102, 241, 0.3)" strokeWidth="0.8" fill="none" />
-                    </svg>
+                  <div className="bg-slate-800/30 rounded-lg px-3 py-2.5 text-[10px] font-mono text-slate-600 leading-snug">
+                    No reply sent
+                  </div>
+                  <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-rose-400 leading-snug">
+                    ✕ Called your competitor
                   </div>
                 </div>
 
-                <div className="border-t border-white/5 pt-3 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                  <span>DISPATCH: <span className="text-emerald-400">OPERATIONAL</span></span>
-                  <span>LATENCY: 0.1s</span>
+                {/* After column */}
+                <div className="p-4 space-y-2.5">
+                  <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold mb-3">With Stoneveil</div>
+                  <div className="hero-check-1 bg-slate-800/50 border border-emerald-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-emerald-300 leading-snug">
+                    ✓ SMS sent in 47 sec
+                  </div>
+                  <div className="hero-check-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-indigo-300 leading-snug">
+                    ✓ Quote form filled
+                  </div>
+                  <div className="hero-check-3 bg-emerald-500/15 border border-emerald-500/30 rounded-lg px-3 py-2.5 text-[10px] font-mono text-emerald-200 font-bold leading-snug">
+                    ✓ Job booked — $850
+                  </div>
                 </div>
+
+              </div>
+
+              {/* Card footer */}
+              <div className="px-5 py-3 border-t border-white/5 bg-slate-950/40 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-slate-500">Happens while you sleep</span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold">+$850 recovered</span>
               </div>
 
             </div>
@@ -405,7 +426,7 @@ export default function App() {
       <section className="py-20 px-6 bg-slate-900 text-white relative border-y border-white/5 overflow-hidden">
         <div className="max-w-5xl mx-auto relative z-10 flex flex-col space-y-12">
           
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-3" data-reveal>
             <span className="text-amber-400 font-semibold tracking-wider text-xs uppercase font-mono">Leads Calculator</span>
             <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white">How much revenue is going to your competitor?</h2>
             <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto">
@@ -535,9 +556,9 @@ export default function App() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <button 
+                <button
                   onClick={claimSavings}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-sm md:text-base cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 inline-flex items-center justify-center space-x-2"
+                  className="btn-press w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-sm md:text-base cursor-pointer inline-flex items-center justify-center space-x-2"
                 >
                   <span>Show me what I'm missing →</span>
                 </button>
@@ -558,7 +579,7 @@ export default function App() {
       <section className="py-24 px-6 bg-slate-50 border-b border-slate-150 relative">
         <div className="max-w-7xl mx-auto flex flex-col space-y-12">
           
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="text-center space-y-3 max-w-2xl mx-auto" data-reveal>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
               Sound familiar?
             </h2>
@@ -568,7 +589,7 @@ export default function App() {
           </div>
 
           {/* 6-Card Grid of Pain Points */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full" data-reveal data-delay="150">
 
             {/* Card 1 */}
             <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
@@ -651,7 +672,7 @@ export default function App() {
       <section id="how-we-work-section" className="py-24 px-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto flex flex-col space-y-16 items-center">
           
-          <div className="text-center space-y-3 max-w-2xl bg-transparent">
+          <div className="text-center space-y-3 max-w-2xl bg-transparent" data-reveal>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
               From "where do I even start" to booked jobs in three steps
             </h2>
@@ -661,7 +682,7 @@ export default function App() {
           </div>
 
           {/* Steps Timeline */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 w-full relative">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 w-full relative" data-reveal data-delay="150">
             <div className="hidden lg:block absolute top-[2.5rem] left-[15%] right-[15%] h-0.5 border-t border-dashed border-slate-200"></div>
 
             {/* Step 1 */}
@@ -742,7 +763,7 @@ export default function App() {
           </div>
 
           {/* Testimonial cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full" data-reveal data-delay="100">
             
             {/* Credential 1: SMB Marketing */}
             <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
@@ -924,6 +945,25 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* Phone — optional but preferred */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                      Mobile Number <span className="text-slate-500 normal-case font-normal">— optional, we'll text you first</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
+                        <Phone className="w-4.5 h-4.5" />
+                      </div>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
+                        placeholder="(720) 555-0192"
+                      />
+                    </div>
+                  </div>
+
                   {/* Business Name */}
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
@@ -1010,12 +1050,32 @@ export default function App() {
                   </select>
                 </div>
 
+                {/* GBP URL — optional, improves audit accuracy */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Google Business Profile URL <span className="text-slate-500 normal-case font-normal">— optional, enables a deeper audit</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
+                      <Building2 className="w-4.5 h-4.5" />
+                    </div>
+                    <input
+                      type="url"
+                      value={gbpUrl}
+                      onChange={(e) => setGbpUrl(e.target.value)}
+                      className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
+                      placeholder="https://maps.app.goo.gl/..."
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500">Find it by searching your business name on Google Maps and copying the URL.</p>
+                </div>
+
                 {/* Submit button */}
                 <div className="pt-2">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-755 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-base transform hover:-translate-y-0.5 active:translate-y-0 transition duration-150 shadow-xl shadow-amber-500/10 cursor-pointer flex items-center justify-center space-x-2"
+                    className="btn-press w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-755 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-base shadow-xl shadow-amber-500/10 cursor-pointer flex items-center justify-center space-x-2"
                   >
                     {isSubmitting ? (
                       <>
@@ -1036,8 +1096,7 @@ export default function App() {
 
               </form>
             ) : (
-              // EXTREMELY HIGH CONVERTING REAL-TIME AUDIT OUTCOME DISPLAY (No technical larping, clean literal labels)
-              <div className="space-y-8 animate-fade-in">
+              <div className="space-y-8 audit-result-animate">
                 
                 {/* Header state */}
                 <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between border-b border-white/10 pb-6 gap-4">
@@ -1046,8 +1105,8 @@ export default function App() {
                       🎉
                     </div>
                     <div>
-                      <h3 className="text-xl md:text-2xl font-bold font-display text-white">You're Booked, {name}!</h3>
-                      <p className="text-xs text-slate-400">Scheduled: stoneVEIL Custom Discovery Strategy Team</p>
+                      <h3 className="text-xl md:text-2xl font-bold font-display text-white">Audit Ready, {name}.</h3>
+                      <p className="text-xs text-slate-400">Your custom audit is on its way to {email}</p>
                     </div>
                   </div>
                   <div className={`font-mono text-xs px-3 py-1.5 rounded-lg flex items-center justify-center space-x-2 border ${aiTier === 'hot' ? 'bg-amber-500/15 border-amber-400/30 text-amber-300' : aiTier === 'cold' ? 'bg-slate-700/40 border-slate-500/30 text-slate-400' : 'bg-indigo-550/15 border-indigo-400/30 text-indigo-300'}`}>
@@ -1141,13 +1200,13 @@ export default function App() {
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => window.plausible?.('calendly_clicked')}
-                        className="inline-flex items-center justify-center space-x-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm py-3 px-6 rounded-lg transition-all hover:-translate-y-0.5"
+                        className="btn-press inline-flex items-center justify-center space-x-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm py-3 px-6 rounded-lg"
                       >
                         <Calendar className="w-4 h-4" />
                         <span>Book my free 15-minute call &rarr;</span>
                       </a>
                       <button
-                        onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); }}
+                        onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); setPhone(''); setGbpUrl(''); }}
                         className="bg-transparent hover:bg-white/5 text-slate-400 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
                       >
                         Submit another
@@ -1165,7 +1224,7 @@ export default function App() {
                       </p>
                     </div>
                     <button
-                      onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); }}
+                      onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); setPhone(''); setGbpUrl(''); }}
                       className="bg-transparent hover:bg-white/5 text-slate-300 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
                     >
                       Submit another

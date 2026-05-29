@@ -1,1 +1,86 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+/* ─── Scroll Reveal ──────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+}
+[data-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+[data-reveal][data-delay="100"] { transition-delay: 100ms; }
+[data-reveal][data-delay="150"] { transition-delay: 150ms; }
+[data-reveal][data-delay="200"] { transition-delay: 200ms; }
+[data-reveal][data-delay="250"] { transition-delay: 250ms; }
+[data-reveal][data-delay="300"] { transition-delay: 300ms; }
+[data-reveal][data-delay="400"] { transition-delay: 400ms; }
+[data-reveal][data-delay="500"] { transition-delay: 500ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Button press feedback (Emil: scale-on-press) ───────────────── */
+.btn-press {
+  transition: transform 150ms ease-out, background-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* ─── Hero widget: "After" checklist stagger ─────────────────────── */
+@keyframes check-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.hero-check-1 { animation: check-in 0.35s ease-out 1.0s both; }
+.hero-check-2 { animation: check-in 0.35s ease-out 1.5s both; }
+.hero-check-3 { animation: check-in 0.35s ease-out 2.0s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-check-1,
+  .hero-check-2,
+  .hero-check-3 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Audit result entry animation ──────────────────────────────── */
+@keyframes audit-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.audit-result-animate {
+  animation: audit-result-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-result-animate {
+    animation: none;
+  }
+}

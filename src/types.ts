@@ -1,10 +1,15 @@
 export interface LeadFormData {
   name: string;
   email: string;
-  company: string;
   phone?: string;
-  strain: string;
-  process?: string;
+  company: string;
+  trade: string;
+  serviceArea: string;
+  currentLeadSource: string;
+  gbpUrl?: string;
+  estMonthlySearches?: number;
+  estCloseRate?: number;
+  estTicket?: number;
 }
 
 export interface AutomationRecommendation {
@@ -15,7 +20,10 @@ export interface AutomationRecommendation {
 
 export interface AuditResponse {
   success: boolean;
-  score: "LOW" | "MEDIUM" | "HIGH";
+  tier: 'hot' | 'warm' | 'cold';
+  score: number;
   recommendations: AutomationRecommendation[];
   summary: string;
+  topMissingFromGBP: string[];
+  calendlyUrl: string | null;
 }

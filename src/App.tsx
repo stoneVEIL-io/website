@@ -1,32 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Calendar, 
-  TrendingUp, 
-  DollarSign, 
-  CheckCircle2, 
-  ChevronRight, 
-  Play, 
-  Info, 
-  AlertTriangle, 
-  ArrowRight, 
-  Loader2, 
-  Mail, 
-  Phone, 
-  Building2, 
-  User, 
-  HelpCircle, 
-  ChevronDown, 
-  ChevronUp, 
-  Copy, 
-  Check, 
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Calendar,
+  TrendingUp,
+  DollarSign,
+  CheckCircle2,
+  ArrowRight,
+  Loader2,
+  Mail,
+  Phone,
+  Building2,
+  User,
+  AlertTriangle,
+  Copy,
+  Check,
   Download,
-  Flame,
-  Clock,
-  Briefcase,
-  Layers,
-  ArrowRightLeft,
-  ChevronLeft
 } from 'lucide-react';
 
 declare global {
@@ -35,11 +22,130 @@ declare global {
   }
 }
 
+// ─── Sourced content — mirrors docs/content/site-copy.ts ────────────────────
+// Nothing here is invented; figures carry their source in the UI.
+
+const STATS = [
+  { figure: '7x', caption: 'more likely to qualify a lead when you reach it inside one hour', source: 'Harvard Business Review' },
+  { figure: '78%', caption: 'of customers hire the company that responds first', source: 'Lead response research' },
+  { figure: '$3.50', caption: 'returned per $1 invested in AI powered customer service', source: 'Industry benchmark' },
+  { figure: '45%', caption: 'average SMS response rate, against roughly 6% for email', source: 'Messaging benchmarks' },
+];
+
+const AUTOMATIONS = [
+  {
+    icon: '/assets/icons/icon-01.webp',
+    title: 'Missed call text back',
+    outcome: "The phone rings while your crew is on a roof. Nobody picks up. Within seconds the caller gets a text from your number that asks what they need and books them in, so the bid never goes to whoever called back first.",
+    stack: 'Twilio, Make, Airtable',
+  },
+  {
+    icon: '/assets/icons/icon-03.webp',
+    title: 'Estimate follow up that actually happens',
+    outcome: 'Every estimate you send gets chased on a schedule you set: a nudge at day two, a check in at day five, a last call at day ten. You stop losing jobs to silence.',
+    stack: 'Airtable, Make, OpenAI',
+  },
+  {
+    icon: '/assets/icons/icon-04.webp',
+    title: 'Scheduling without the back and forth',
+    outcome: 'Callers pick a window from your real availability. Confirmations and reminders go out on their own, so fewer people forget you were coming.',
+    stack: 'Google Calendar, Make, Twilio',
+  },
+  {
+    icon: '/assets/icons/icon-05.webp',
+    title: 'Invoice chasing on autopilot',
+    outcome: 'Unpaid invoices get a polite reminder at 7, 14 and 30 days, in your voice, without you being the one to ask again.',
+    stack: 'QuickBooks, Make, Twilio',
+  },
+  {
+    icon: '/assets/icons/icon-06.webp',
+    title: 'Review requests after every job',
+    outcome: 'The day a job closes, the customer gets one message asking for a review, with the link already in it. Your local search ranking stops depending on your memory.',
+    stack: 'Google Business Profile, Make',
+  },
+];
+
+const STEPS = [
+  {
+    index: '01',
+    title: 'Audit',
+    plate: '/assets/plate-paper.webp',
+    body: 'We call your business line during working hours and record what happens. Then we count what it cost you.',
+    detail: 'You get a one page audit: how many calls went unanswered, how long a caller waits before they try the next contractor, and what a single recovered bid is worth against your average ticket. Free, and yours whether or not you hire us.',
+  },
+  {
+    index: '02',
+    title: 'Build',
+    plate: '/assets/plate-blueprint.webp',
+    body: 'We build the workflow on tools you can own: Make, Airtable, Twilio, OpenAI. No black box.',
+    detail: 'One workflow first, the one that is bleeding. It runs on your number, in your voice, with your trade language. You see every message it will send before it sends one.',
+  },
+  {
+    index: '03',
+    title: 'Run',
+    plate: '/assets/plate-steel.webp',
+    body: 'We watch it, fix it, and report what it recovered. Month to month, cancel whenever.',
+    detail: 'Every month you get the same numbers the audit gave you, now with the automation running: calls caught, replies sent, jobs booked. If the number does not move, you stop paying.',
+  },
+];
+
+const TIERS = [
+  {
+    name: 'Missed call audit',
+    scope: 'We call your line, document what happens, and hand you the cost in writing. One page, no pitch attached.',
+    price: 'Free',
+    note: 'Turnaround: 48 hours',
+  },
+  {
+    name: 'Single workflow build',
+    scope: 'One automation, built and handed over on tools you own. Missed call text back is where most contractors start.',
+    price: '$2,500 – $15,000',
+    note: 'Scope sets the number. Most first builds land at the low end.',
+  },
+  {
+    name: 'Managed retainer',
+    scope: 'We run it, monitor it, extend it, and report what it recovered each month. Month to month.',
+    price: '$500 – $5,000/mo',
+    note: 'Priced on volume and how many workflows are live.',
+  },
+];
+
+const FAQS = [
+  {
+    q: 'What does an AI receptionist for contractors actually do?',
+    a: 'It answers the calls your crew cannot. When a call goes unanswered, the caller immediately receives a text from your business number that asks what they need, captures the job details, and offers a booking window. The lead lands in your inbox with a name, a number and a description instead of a voicemail you find at 8pm.',
+  },
+  {
+    q: 'How much does AI automation cost for a small construction business?',
+    a: 'A single workflow build runs $2,500 to $15,000 depending on scope, and a managed retainer runs $500 to $5,000 a month. The audit that tells you whether it is worth it is free.',
+  },
+  {
+    q: 'How fast does it pay for itself?',
+    a: 'That depends on your average ticket. Companies that reach a lead within one hour are nearly seven times more likely to qualify it, and 78% of customers hire whoever responds first. For most contractors, one recovered bid covers the build.',
+  },
+  {
+    q: 'Will it sound like a robot to my customers?',
+    a: 'The messages are written with you, in your trade language, and you approve every template before it goes live. Text beats voice here anyway: SMS gets around a 45% response rate against roughly 6% for email.',
+  },
+  {
+    q: 'Do I have to switch software?',
+    a: 'No. We build on tools you already own or can own outright: Make, Airtable, Twilio, OpenAI, your calendar, your accounting software. If you fire us, the automation keeps running and it stays yours.',
+  },
+  {
+    q: 'Do you have case studies?',
+    a: 'Not yet. stoneVEIL Operations is taking its first construction clients now, and we will not invent a testimonial to look bigger than we are. What we offer instead is a free audit of your own phone line and a first build priced so the risk sits with us.',
+  },
+  {
+    q: 'Why construction specifically?',
+    a: 'Because speed to lead is the whole game in the trades and it is measurable in week one. Crews are on site, the phone rings, nobody answers, and the bid goes to whoever called back first. That is a bleeding wound, not a nice to have.',
+  },
+];
+
 export default function App() {
   // Navigation & Interactive States
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  
-  // Standalone Code Export Modal
+
+  // Standalone Code Export Modal (dev-only utility, unrelated to public design)
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [htmlCode, setHtmlCode] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState(false);
@@ -49,8 +155,6 @@ export default function App() {
   const [estCloseRate, setEstCloseRate] = useState<number>(15); // percent
   const [estTicket, setEstTicket] = useState<number>(450); // average ticket $
 
-  // A 10-percentage-point lift in close rate is the typical Stoneveil outcome —
-  // honest and defensible. Revenue at stake = searches × 10pp × ticket.
   const currentMonthlyRevenue = Math.round(estMonthlySearches * (estCloseRate / 100) * estTicket);
   const monthlyRevenueAtStake = Math.round(estMonthlySearches * 0.10 * estTicket);
   const annualRevenueAtStake = monthlyRevenueAtStake * 12;
@@ -65,7 +169,7 @@ export default function App() {
   const [trade, setTrade] = useState('');
   const [currentLeadSource, setCurrentLeadSource] = useState('');
   const [gbpUrl, setGbpUrl] = useState('');
-  
+
   // Submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -79,12 +183,15 @@ export default function App() {
   // Mobile Sticky bottom bar visible on scroll
   const [stickyBarVisible, setStickyBarVisible] = useState(false);
 
+  // Grade-shift hero mechanic — cursor lifts the veil, scroll drives it as a fallback
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [revealAmount, setRevealAmount] = useState(0);
+
   useEffect(() => {
-    // Fetch and load standalone landing page source code for the export utility
     if (import.meta.env.DEV) {
       fetch('/landing.html')
-        .then(r => r.text())
-        .then(text => setHtmlCode(text))
+        .then((r) => r.text())
+        .then((text) => setHtmlCode(text))
         .catch(() => {});
     }
 
@@ -92,11 +199,15 @@ export default function App() {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollPercent = (window.scrollY / scrollHeight) * 100;
       setStickyBarVisible(scrollPercent > 30 && window.innerWidth < 768);
+
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        const progress = Math.min(1, Math.max(0, -rect.top / (rect.height * 0.6)));
+        setRevealAmount((prev) => (window.matchMedia('(hover: hover)').matches ? prev : progress));
+      }
     };
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-    window.addEventListener('scroll', handleScroll);
-
-    // Scroll reveal
     const revealEls = document.querySelectorAll('[data-reveal]');
     const revealObserver = new IntersectionObserver(
       (entries) => {
@@ -111,7 +222,6 @@ export default function App() {
     );
     revealEls.forEach((el) => revealObserver.observe(el));
 
-    // Fire form_view once when the lead-capture section scrolls into view
     const formEl = document.getElementById('lead-capture-form');
     let formObserver: IntersectionObserver | null = null;
     if (formEl) {
@@ -133,6 +243,13 @@ export default function App() {
       formObserver?.disconnect();
     };
   }, []);
+
+  const handleHeroPointerMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    setRevealAmount(Math.min(1, Math.max(0, x)));
+  };
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(htmlCode);
@@ -177,7 +294,7 @@ export default function App() {
           estMonthlySearches,
           estCloseRate,
           estTicket,
-        })
+        }),
       });
 
       const data = await response.json();
@@ -185,35 +302,35 @@ export default function App() {
         setSuccess(true);
         setAiTier(data.tier || 'warm');
         setAiRecommendations(data.recommendations || []);
-        setAiSummary(data.summary || "");
+        setAiSummary(data.summary || '');
         setAiMissingGbp(data.topMissingFromGBP || []);
         setCalendlyUrl(data.calendlyUrl || null);
         window.plausible?.('form_submit');
       } else {
-        throw new Error(data.error || "Internal server error submitting lead information");
+        throw new Error(data.error || 'Internal server error submitting lead information');
       }
     } catch (err) {
-      console.warn("API not reachable; showing local fallback audit:", err);
+      console.warn('API not reachable; showing local fallback audit:', err);
       setSuccess(true);
       setAiTier('warm');
       setAiRecommendations([
         {
-          title: `Fix your Google Business Profile basics for ${company}`,
-          description: `Most ${trade.toLowerCase()} profiles in ${serviceArea} are missing hours, photos, or service categories — easy wins that lift Map-Pack ranking inside a week.`,
-          roi: "Recovers visibility on the searches you're already losing."
+          title: `Missed call text back for ${company}`,
+          description: `The phone rings while your crew is on the job. Within seconds of a missed call, the caller gets a text from your number asking what they need — so the bid does not go to whoever called back first.`,
+          roi: 'Closes the gap that is costing you the most jobs.',
         },
         {
-          title: "Instant text-back when you can't pick up",
-          description: "Automated SMS reply within 60 seconds of any missed call, with a link to a quote form. Cuts the leak between phone ringing and competitor calling.",
-          roi: "Closes the gap that's costing you the most jobs."
+          title: 'Estimate follow up on a schedule',
+          description: `Every estimate you send gets chased at day 2, day 5, and day 10, in your voice, without you being the one to remember.`,
+          roi: 'Recovers bids that are currently dying in silence.',
         },
         {
-          title: "After-hours coverage that books while you sleep",
-          description: "Weekend and after-5pm inquiries get acknowledged immediately and qualified into your inbox by morning — no more Monday-morning ghosting.",
-          roi: "Captures the leads currently dying in voicemail."
-        }
+          title: 'A tighter Google Business Profile',
+          description: `Most ${trade.toLowerCase() || 'contractor'} profiles in ${serviceArea || 'your area'} are missing hours, photos, or service categories — easy wins that lift Map-Pack ranking inside a week.`,
+          roi: "Recovers visibility on the searches you're already losing.",
+        },
       ]);
-      setAiSummary(`We've prepared your initial local optimization suggestions. Let's schedule a brief 15-minute call to walk through the specific Google Profile and lead-response gaps for ${company} in ${serviceArea}.`);
+      setAiSummary(`We've prepared your initial audit. Let's schedule a free 15-minute call to walk through what an unanswered phone is costing ${company} in ${serviceArea}, and what fixing it is worth.`);
       setAiMissingGbp([]);
       setCalendlyUrl(null);
     } finally {
@@ -222,32 +339,32 @@ export default function App() {
   };
 
   const claimSavings = () => {
-    const element = document.getElementById("lead-capture-form");
+    const element = document.getElementById('lead-capture-form');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   const requestDemoSpec = (index: number, _title: string) => {
-    setIsDemoRequestSent(prev => ({ ...prev, [index]: true }));
+    setIsDemoRequestSent((prev) => ({ ...prev, [index]: true }));
   };
 
   return (
-    <div className="bg-white text-slate-800 font-sans antialiased selection:bg-indigo-600 selection:text-white">
-      
+    <div className="bg-paper text-ink font-sans antialiased selection:bg-cobalt selection:text-white">
+
       {/* Dev-only export bar — hidden in production builds */}
       {import.meta.env.DEV && (
-        <div className="bg-slate-900 border-b border-white/10 text-white py-2.5 px-4 sticky top-0 z-50 text-xs flex flex-wrap gap-4 items-center justify-between shadow-md">
+        <div className="bg-ink border-b border-white/10 text-white py-2.5 px-4 sticky top-0 z-50 text-xs flex flex-wrap gap-4 items-center justify-between shadow-md">
           <div className="flex items-center space-x-2">
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <p className="font-medium text-slate-300">
+            <p className="font-medium text-white/70">
               Developer Sandbox Mode: <span className="text-white">stoneVEIL Operations LLC</span>
             </p>
           </div>
           <div className="flex items-center space-x-2.5">
             <button
               onClick={() => setIsExportOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-1 px-3 rounded text-[11px] transition duration-150 inline-flex items-center space-x-1"
+              className="bg-cobalt hover:opacity-90 text-white font-semibold py-1 px-3 text-[11px] transition duration-150 inline-flex items-center space-x-1"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export Standalone HTML</span>
@@ -256,7 +373,7 @@ export default function App() {
               href="/landing.html"
               target="_blank"
               rel="noreferrer"
-              className="bg-transparent border border-white/20 hover:bg-white/5 text-slate-300 font-medium py-1 px-3 rounded text-[11px] transition"
+              className="bg-transparent border border-white/20 hover:bg-white/5 text-white/70 font-medium py-1 px-3 text-[11px] transition"
             >
               Open Standalone Raw Page
             </a>
@@ -264,623 +381,266 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER / NAVIGATION */}
-      <header className={`bg-brand-navy p-5 px-6 md:px-12 border-b border-white/5 sticky z-40 bg-[#0F1929]/95 backdrop-blur-md ${import.meta.env.DEV ? 'top-[42px]' : 'top-0'}`}>
+      {/* HEADER / TITLE-BLOCK NAVIGATION */}
+      <header className={`bg-paper hairline-b px-6 md:px-12 py-4 sticky z-40 backdrop-blur-md bg-paper/95 ${import.meta.env.DEV ? 'top-[42px]' : 'top-0'}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <a href="#" className="flex items-center space-x-3 text-white">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight text-white">
-              stone<span className="text-indigo-500">VEIL</span> <span className="text-xs uppercase font-mono px-1.5 py-0.5 bg-white/5 rounded border border-white/10 ml-2 text-slate-400">Operations</span>
+          <a href="#" className="flex items-center space-x-3 text-ink">
+            <img src="/assets/monogram.webp" alt="" className="w-8 h-8" />
+            <span className="font-display font-bold text-lg tracking-tight">
+              stone<span className="text-cobalt">VEIL</span>{' '}
+              <span className="text-[10px] uppercase tracking-widest px-1.5 py-0.5 border border-hairline text-ink-muted ml-1">Operations</span>
             </span>
           </a>
-          
-          <a 
-            href="#lead-capture-form" 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm md:text-base py-2.5 px-5 rounded-lg transition-all duration-200 shadow-md hover:shadow-indigo-500/10"
-          >
-            Get my free audit
+
+          <a href="#lead-capture-form" className="group relative text-sm font-semibold text-ink pb-1">
+            Book the audit
+            <span className="absolute left-0 -bottom-0.5 h-[1.5px] w-0 bg-cobalt transition-all duration-200 group-hover:w-full"></span>
           </a>
         </div>
       </header>
 
-      {/* HERO SECTION */}
-      <section className="relative bg-[#0F1929] text-white pt-16 pb-24 md:pt-24 md:pb-32 px-6 overflow-hidden">
-        {/* Glow Spheres */}
-        <div className="absolute top-1/4 left-1/3 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[90px] pointer-events-none"></div>
+      {/* HERO — asymmetric split, grade-shift pair */}
+      <section className="relative bg-paper px-6 pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-          
-          {/* Hero Copy */}
-          <div className="lg:col-span-7 flex flex-col space-y-6 md:space-y-8 items-start">
+          <div className="lg:col-span-6 flex flex-col space-y-7" data-reveal>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">
-                <Flame className="w-3 h-3 animate-pulse shrink-0" />
-                <span>First Cohort — 5 Spots Only</span>
-              </span>
-              <span className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-[11px] text-slate-400 font-mono">
-                2–5 person trade shops
-              </span>
+              <span className="spec-label border border-hairline px-3 py-1.5">Now booking the free 48-hour audit</span>
+              <span className="text-[11px] text-ink-muted border border-hairline px-3 py-1.5 uppercase tracking-wider">2–3 person construction contractors</span>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight font-display text-white">
-              You're not getting <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">the jobs you should be</span>.
+
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight font-display text-ink">
+              Every missed call is a lost bid.
             </h1>
-            
-            <p className="text-slate-300 text-lg md:text-xl max-w-2xl leading-relaxed">
-              Local homeowners are searching for trades like yours right now — and more than half are picking your competitor because of a slow website, a missed text, or a better-looking Google profile.
+
+            <p className="text-ink-muted text-lg md:text-xl max-w-xl leading-relaxed">
+              Local homeowners are calling right now. When your crew can't pick up, the bid doesn't wait — it goes to whoever answers first.
             </p>
 
-            <p className="text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed">
-              Stoneveil builds 2–5 person contractors a Google-Profile-powered website that wins more of those jobs, then automates the lead-response loop where you used to lose them.
+            <p className="text-ink-muted text-base md:text-lg max-w-xl leading-relaxed">
+              stoneVEIL runs a thin automated layer over your phone line: missed calls get an instant text back, estimates get chased on schedule, invoices get chased, reviews get asked for — all on tools you own.
             </p>
-            
-            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4 pt-2">
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <a
                 href="#lead-capture-form"
-                className="btn-press bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/15 text-base"
+                className="cta-viewfinder btn-press bg-ink hover:bg-dusk text-white font-bold text-center py-4 px-8 text-base"
               >
-                Get my free Google Profile audit &rarr;
+                Book the audit &rarr;
               </a>
-              <a 
-                href="#how-we-work-section" 
-                className="border border-white/20 hover:bg-white/5 text-white font-semibold text-center py-4 px-8 rounded-lg transition text-base"
+              <a
+                href="#how-it-works"
+                className="border border-hairline hover:border-ink text-ink font-semibold text-center py-4 px-8 transition text-base"
               >
-                See How It Works
+                See how it works
               </a>
             </div>
-            
-            <p className="text-sm text-slate-400 pt-1 max-w-2xl">
-              Audit is free. Websites start at $3K–$5K with a $300/mo automation retainer. First-cohort pricing, capped at 5 contractors.
+
+            <p className="text-sm text-ink-muted pt-1 max-w-xl">
+              Audit is free, 48-hour turnaround. Single workflow builds run $2,500–$15,000; a managed retainer runs $500–$5,000/mo, scoped to what's live.
             </p>
-
-            {/* Founder Credentials */}
-            <div className="w-full pt-6 border-t border-white/10 grid grid-cols-3 gap-6">
-              <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-white">8 yrs</div>
-                <div className="text-xs md:text-sm text-slate-400">Inside Web.com, Realtor.com, TheKnot.com helping SMB owners with marketing, websites, and lead flow.</div>
-              </div>
-              <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">$3B</div>
-                <div className="text-xs md:text-sm text-slate-400">Retention revenue surfaced from a 3M-transaction prediction model.</div>
-              </div>
-              <div>
-                <div className="text-2xl md:text-3xl font-extrabold font-display text-indigo-400">4 yrs</div>
-                <div className="text-xs md:text-sm text-slate-400">Production DBA — MSSQL, Postgres, Python automation.</div>
-              </div>
-            </div>
           </div>
-          
-          {/* Hero Widget: Before vs. After — Missed Call Recovery */}
-          <div className="lg:col-span-5 w-full flex justify-center relative">
-            <div className="w-full max-w-md bg-slate-900/80 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
 
-              {/* Card header */}
-              <div className="px-5 py-3.5 border-b border-white/5 bg-slate-950/40 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 tracking-widest uppercase">Lead Recovery — Tonight</span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
-                  <span className="text-[10px] font-mono text-emerald-400">Active</span>
-                </span>
+          {/* Grade-shift plate: veiled (unattended) crossfades to lifted (handled) */}
+          <div className="lg:col-span-6 w-full" data-reveal data-delay="150">
+            <div
+              ref={heroRef}
+              onMouseMove={handleHeroPointerMove}
+              onMouseLeave={() => window.matchMedia('(hover: hover)').matches && setRevealAmount(0)}
+              className="grade-shift w-full aspect-[4/5] hairline"
+              style={{ ['--reveal-amount' as any]: revealAmount }}
+            >
+              <img src="/assets/hero-veiled.webp" alt="A jobsite at dusk, phone lighting up unanswered" className="grade-shift__base" />
+              <img src="/assets/hero-lifted.webp" alt="The same jobsite the next morning, crew working, job booked" className="grade-shift__reveal" />
+              <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-ink/70 backdrop-blur-sm flex items-center justify-between text-[10px] uppercase tracking-widest text-white/80 font-sans">
+                <span>Move your cursor to lift the veil</span>
+                <span className="text-white">{Math.round(revealAmount * 100)}%</span>
               </div>
-
-              {/* Shared trigger event */}
-              <div className="px-5 py-4 border-b border-white/5 bg-slate-900/60">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-700/80 border border-white/10 flex items-center justify-center text-base shrink-0">📞</div>
-                  <div>
-                    <div className="text-[12px] text-white/80 font-semibold font-display">Missed call — Sarah K.</div>
-                    <div className="text-[10px] text-slate-500 font-mono">Friday, 6:52 PM — while you were on a job</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Split comparison */}
-              <div className="grid grid-cols-2 divide-x divide-white/5">
-
-                {/* Before column */}
-                <div className="p-4 space-y-2.5">
-                  <div className="text-[9px] font-mono text-rose-400/80 uppercase tracking-widest font-bold mb-3">Before</div>
-                  <div className="bg-slate-800/50 rounded-lg px-3 py-2.5 text-[10px] font-mono text-slate-500 leading-snug">
-                    Went to voicemail
-                  </div>
-                  <div className="bg-slate-800/30 rounded-lg px-3 py-2.5 text-[10px] font-mono text-slate-600 leading-snug">
-                    No reply sent
-                  </div>
-                  <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-rose-400 leading-snug">
-                    ✕ Called your competitor
-                  </div>
-                </div>
-
-                {/* After column */}
-                <div className="p-4 space-y-2.5">
-                  <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold mb-3">With Stoneveil</div>
-                  <div className="hero-check-1 bg-slate-800/50 border border-emerald-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-emerald-300 leading-snug">
-                    ✓ SMS sent in 47 sec
-                  </div>
-                  <div className="hero-check-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg px-3 py-2.5 text-[10px] font-mono text-indigo-300 leading-snug">
-                    ✓ Quote form filled
-                  </div>
-                  <div className="hero-check-3 bg-emerald-500/15 border border-emerald-500/30 rounded-lg px-3 py-2.5 text-[10px] font-mono text-emerald-200 font-bold leading-snug">
-                    ✓ Job booked — $850
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Card footer */}
-              <div className="px-5 py-3 border-t border-white/5 bg-slate-950/40 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-500">Happens while you sleep</span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold">+$850 recovered</span>
-              </div>
-
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* HIGH CONVERTING ADDITION: INTERACTIVE ROI CALCULATOR */}
-      <section className="py-20 px-6 bg-slate-900 text-white relative border-y border-white/5 overflow-hidden">
-        <div className="max-w-5xl mx-auto relative z-10 flex flex-col space-y-12">
-          
-          <div className="text-center space-y-3" data-reveal>
-            <span className="text-amber-400 font-semibold tracking-wider text-xs uppercase font-mono">Leads Calculator</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white">How much revenue is going to your competitor?</h2>
-            <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto">
-              Most contractors don't know how much business they're leaving on the table from a slow website and a weak Google profile. Move the sliders to see — and what a typical Stoneveil lift would be worth to you.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-2">
-            
-            {/* Control Sliders */}
-            <div className="lg:col-span-7 bg-slate-950/60 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6 flex flex-col justify-between">
-              
-              {/* Slider 1: Monthly local searches */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <TrendingUp className="w-4 h-4 text-indigo-400" />
-                    <span>Monthly local searches for your trade in your area:</span>
-                  </label>
-                  <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    {estMonthlySearches}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="500"
-                  value={estMonthlySearches}
-                  onChange={(e) => setEstMonthlySearches(parseInt(e.target.value))}
-                  className="w-full accent-indigo-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>20 searches</span>
-                  <span>250</span>
-                  <span>500+ searches</span>
-                </div>
-              </div>
-
-              {/* Slider 2: Current close rate */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <Phone className="w-4 h-4 text-indigo-400" />
-                    <span>Searchers who actually call & book you today:</span>
-                  </label>
-                  <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    {estCloseRate}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="40"
-                  value={estCloseRate}
-                  onChange={(e) => setEstCloseRate(parseInt(e.target.value))}
-                  className="w-full accent-indigo-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>5%</span>
-                  <span>20%</span>
-                  <span>40%</span>
-                </div>
-              </div>
-
-              {/* Slider 3: Average ticket */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold tracking-wide text-slate-300 flex items-center space-x-2">
-                    <DollarSign className="w-4 h-4 text-indigo-400" />
-                    <span>Average ticket per job:</span>
-                  </label>
-                  <span className="text-base font-extrabold font-mono text-white bg-indigo-500/20 px-3 py-1 rounded">
-                    ${estTicket}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="5000"
-                  step="50"
-                  value={estTicket}
-                  onChange={(e) => setEstTicket(parseInt(e.target.value))}
-                  className="w-full accent-indigo-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] font-mono text-slate-550">
-                  <span>$100</span>
-                  <span>$2,500</span>
-                  <span>$5,000+</span>
-                </div>
-              </div>
-
+      {/* STAT BAND */}
+      <section className="hairline-t hairline-b bg-limestone py-14 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6" data-reveal>
+          {STATS.map((s, i) => (
+            <div key={i} className={`space-y-2 ${i > 0 ? 'md:pl-6 md:border-l md:border-hairline' : ''}`}>
+              <div className="text-4xl md:text-5xl font-extrabold font-display text-cobalt tracking-tight">{s.figure}</div>
+              <p className="text-sm text-ink leading-snug">{s.caption}</p>
+              <p className="text-[11px] text-ink-muted uppercase tracking-wider">{s.source}</p>
             </div>
-
-            {/* Calculations Outcome Board */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-indigo-905 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 md:p-8 flex flex-col justify-between space-y-6 relative">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
-              
-              <div className="space-y-5">
-                <span className="text-[11px] font-bold font-mono tracking-wider text-indigo-350 block uppercase">Revenue going to your competitor</span>
-
-                <div className="space-y-1">
-                  <p className="text-slate-400 text-sm font-medium">Left on the table each month:</p>
-                  <p className="text-4xl md:text-5xl font-extrabold font-display text-white tracking-tight flex items-baseline">
-                    ${monthlyRevenueAtStake.toLocaleString()}
-                    <span className="text-sm font-semibold text-slate-300 ml-2">/ month</span>
-                  </p>
-                </div>
-
-                <div className="space-y-1 pt-1">
-                  <p className="text-slate-400 text-sm font-medium">Annual revenue from a 10-point close-rate lift:</p>
-                  <p className="text-4xl md:text-5xl font-extrabold font-display text-emerald-400 tracking-tight flex items-baseline">
-                    ${annualRevenueAtStake.toLocaleString()}
-                    <span className="text-sm font-semibold text-slate-300 ml-2">/ year</span>
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-white/15 grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-slate-400 text-[11px] block">Current Monthly Revenue From Search</span>
-                    <span className="text-white font-extrabold font-mono text-lg">${currentMonthlyRevenue.toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 text-[11px] block">Extra Jobs Per Month</span>
-                    <span className="text-white font-extrabold font-mono text-lg">{monthlyJobsAtStake} jobs</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <button
-                  onClick={claimSavings}
-                  className="btn-press w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-sm md:text-base cursor-pointer inline-flex items-center justify-center space-x-2"
-                >
-                  <span>Show me what I'm missing →</span>
-                </button>
-                <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-450">
-                  <span>🔒</span>
-                  <span>Calculated values securely pre-fills in audit form below</span>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
+          ))}
         </div>
       </section>
 
-      {/* SECTION 2: PAIN AGITATION */}
-      <section className="py-24 px-6 bg-slate-50 border-b border-slate-150 relative">
-        <div className="max-w-7xl mx-auto flex flex-col space-y-12">
-          
-          <div className="text-center space-y-3 max-w-2xl mx-auto" data-reveal>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              Sound familiar?
+      {/* WHAT WE AUTOMATE */}
+      <section className="py-24 px-6 bg-paper hairline-b">
+        <div className="max-w-6xl mx-auto flex flex-col space-y-14">
+          <div className="max-w-2xl space-y-3" data-reveal>
+            <span className="spec-label">What we automate</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-ink">
+              Five workflows, built on tools you already own the accounts for.
             </h2>
-            <p className="text-slate-600 text-base md:text-lg">
-              You started a trade business to do the work. Not to be the call-center, the marketer, and the after-hours responder all at once.
-            </p>
           </div>
 
-          {/* 6-Card Grid of Pain Points */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full" data-reveal data-delay="150">
-
-            {/* Card 1 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Phone className="w-5 h-5" />
+          <div className="space-y-0">
+            {AUTOMATIONS.map((a, i) => (
+              <div
+                key={a.title}
+                data-reveal
+                data-delay={String(Math.min(500, i * 100))}
+                className={`hairline-t py-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center ${i % 2 === 1 ? 'md:text-right' : ''}`}
+              >
+                <div className={`md:col-span-2 flex ${i % 2 === 1 ? 'md:justify-end' : ''}`}>
+                  <img src={a.icon} alt="" className="w-14 h-14" />
+                </div>
+                <div className={`md:col-span-7 space-y-2 ${i % 2 === 1 ? 'md:order-first' : ''}`}>
+                  <h3 className="text-xl md:text-2xl font-bold font-display text-ink">{a.title}</h3>
+                  <p className="text-sm md:text-base text-ink-muted leading-relaxed max-w-2xl">{a.outcome}</p>
+                </div>
+                <div className="md:col-span-3">
+                  <span className="text-[11px] uppercase tracking-wider text-cobalt font-semibold">{a.stack}</span>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Phone rings while you're on a job</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">You can't stop in the middle of work to answer. The call goes to voicemail, and most homeowners just dial the next guy on the list.</p>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Slow text-back loses the lead</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Replying within 5 minutes vs. an hour can mean the difference between a booked job and a homeowner who's already moved on.</p>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Weak Google Profile</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Missing hours, old photos, thin reviews. You're invisible in the Map Pack while a competitor with a fuller profile wins every search.</p>
-              </div>
-            </div>
-
-            {/* Card 4 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Flame className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Reviews you never get around to asking for</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Happy customers don't think to leave one. Without a system to ask, your review count stays flat — and so does your Google ranking.</p>
-              </div>
-            </div>
-
-            {/* Card 5 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <Mail className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Radio silence after 5pm</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Saturday-morning emergency call goes nowhere until Monday. By then the homeowner's hired someone else and you'll never know they tried.</p>
-              </div>
-            </div>
-
-            {/* Card 6 */}
-            <div className="bg-white border border-slate-200/60 p-6 rounded-xl hover:shadow-lg hover:border-indigo-500/20 transition duration-300 flex space-x-4 items-start">
-              <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
-                <DollarSign className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-bold text-slate-900 font-display text-base">Quotes that go out three days late</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">Lead asks for pricing on a Tuesday. You finish the quote on Friday from the truck. They've already booked the other guy who got back to them that night.</p>
-              </div>
-            </div>
-
+            ))}
           </div>
-
-          <div className="text-center pt-4">
-            <p className="text-lg md:text-xl font-semibold text-[#0F1929] max-w-xl mx-auto italic font-display">
-              "Every one of these is fixable in your first build. Most go live within 1–2 weeks."
-            </p>
-          </div>
-
         </div>
       </section>
 
-      {/* SECTION 3: HOW IT WORKS */}
-      <section id="how-we-work-section" className="py-24 px-6 bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto flex flex-col space-y-16 items-center">
-          
-          <div className="text-center space-y-3 max-w-2xl bg-transparent" data-reveal>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              From "where do I even start" to booked jobs in three steps
+      {/* HOW IT WORKS: AUDIT / BUILD / RUN */}
+      <section id="how-it-works" className="py-24 px-6 bg-limestone hairline-b">
+        <div className="max-w-6xl mx-auto flex flex-col space-y-14">
+          <div className="max-w-2xl space-y-3" data-reveal>
+            <span className="spec-label">How it works</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-ink">
+              Audit, build, run. No code, no black box.
             </h2>
-            <p className="text-slate-600 text-base md:text-lg">
-              Three steps, designed to keep you on the job site. No code, no spreadsheets, no learning curve.
-            </p>
           </div>
 
-          {/* Steps Timeline */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 w-full relative" data-reveal data-delay="150">
-            <div className="hidden lg:block absolute top-[2.5rem] left-[15%] right-[15%] h-0.5 border-t border-dashed border-slate-200"></div>
-
-            {/* Step 1 */}
-            <div className="bg-slate-50 lg:bg-transparent p-6 md:p-8 lg:p-0 rounded-2xl flex flex-col items-center text-center space-y-4 relative">
-              <div className="w-16 h-16 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-lg relative z-10 font-mono">
-                01
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8" data-reveal data-delay="150">
+            {STEPS.map((s) => (
+              <div key={s.index} className="hairline bg-paper flex flex-col">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={s.plate} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute top-3 left-3 text-white font-display font-extrabold text-2xl drop-shadow">{s.index}</span>
+                </div>
+                <div className="p-6 space-y-3 flex-1">
+                  <h3 className="text-xl font-bold font-display text-ink">{s.title}</h3>
+                  <p className="text-sm text-ink font-semibold leading-relaxed">{s.body}</p>
+                  <p className="text-sm text-ink-muted leading-relaxed">{s.detail}</p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">1. Free Google Profile audit</h3>
-                <span className="inline-block bg-indigo-55 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  Time: 15 min call
-                </span>
-                <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  I pull your Google Business Profile, compare it side-by-side with a top local competitor in your trade, and send you 3 specific things costing you jobs right now. Yours to keep — even if we don't work together.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-slate-50 lg:bg-transparent p-6 md:p-8 lg:p-0 rounded-2xl flex flex-col items-center text-center space-y-4 relative">
-              <div className="w-16 h-16 rounded-full bg-slate-900 border border-indigo-500 text-white flex items-center justify-center font-bold text-lg shadow-lg relative z-10 font-mono">
-                02
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">2. Build & launch</h3>
-                <span className="inline-block bg-indigo-55 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  Time: 1–2 weeks
-                </span>
-                <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  Mobile-first website tailored to your trade, Google Profile fixes, and automated lead-response: instant text-back, after-hours coverage, missed-call follow-up. $3K–$5K, first-cohort pricing.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-slate-50 lg:bg-transparent p-6 md:p-8 lg:p-0 rounded-2xl flex flex-col items-center text-center space-y-4 relative">
-              <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shadow-lg relative z-10 font-mono">
-                03
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold font-display text-slate-950">3. Automated lead flow on retainer</h3>
-                <span className="inline-block bg-emerald-55 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-                  $300/mo, cancel anytime
-                </span>
-                <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-                  The lead-response stays live and gets tuned monthly based on what's converting for you. You stop being the bottleneck — the leads land in your phone already qualified.
-                </p>
-              </div>
-            </div>
-
+            ))}
           </div>
 
-          <div className="pt-4">
+          <div className="pt-2">
             <a
               href="#lead-capture-form"
-              className="inline-flex items-center space-x-3 bg-[#0F1929] hover:bg-[#1E293B] text-white font-bold py-4 px-8 rounded-lg shadow-lg transition duration-150"
+              className="cta-viewfinder inline-flex items-center space-x-3 bg-ink hover:bg-dusk text-white font-bold py-4 px-8 transition duration-150"
             >
-              <span>Get my free Google Profile audit</span>
-              <ArrowRight className="w-4 h-4 text-slate-350" />
+              <span>Book the audit</span>
+              <ArrowRight className="w-4 h-4" />
             </a>
           </div>
-
         </div>
       </section>
 
-      {/* SECTION 4: SOCIAL PROOF */}
-      <section className="py-24 px-6 bg-slate-50 border-b border-slate-150">
-        <div className="max-w-7xl mx-auto flex flex-col space-y-16 items-center">
-          
-          <div className="text-center space-y-3 max-w-3xl">
-            <span className="text-indigo-600 font-bold tracking-wider text-xs uppercase font-mono">Why Stoneveil</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              Built by someone who's spent the last decade inside the small-business marketing problem.
+      {/* WHAT A BUILD ACTUALLY LOOKS LIKE — second-read moment, founder note */}
+      <section className="py-24 px-6 bg-paper hairline-b">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-8" data-reveal>
+            <span className="spec-label">What a build actually looks like</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-ink mt-3 mb-6 max-w-xl">
+              One workflow, running on your number, in your voice.
             </h2>
-            <p className="text-slate-600 text-base md:text-lg">
-              Most "AI consultants" can pitch you a website. Almost none can audit your data layer, build the automation, AND train you on what good lead flow actually looks like. That's the combination Stoneveil is.
+            <div className="hairline overflow-hidden">
+              <img src="/assets/walkthrough.webp" alt="Workflow builder screen showing a missed-call text-back automation" className="w-full h-auto" />
+            </div>
+          </div>
+
+          {/* Side-rail note — founder background, not a testimonial */}
+          <aside className="lg:col-span-4 hairline p-6 space-y-5 lg:mt-16" data-reveal data-delay="150">
+            <p className="spec-label">Who's building this</p>
+            <p className="text-sm text-ink leading-relaxed">
+              stoneVEIL Operations is a one-person build: 8 years inside Web.com, Realtor.com, and TheKnot.com walking small-business owners through what was working in their marketing and what wasn't — including training agents on Opcity, Realtor.com's live-leads-by-phone system, which is close to the same motion this automates for contractors now.
             </p>
-          </div>
-
-          {/* Testimonial cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full" data-reveal data-delay="100">
-            
-            {/* Credential 1: SMB Marketing */}
-            <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <div className="space-y-4">
-                <span className="inline-block bg-emerald-50 text-emerald-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  📞 SMB MARKETING — 8 YEARS
-                </span>
-                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
-                  I spent 8 years inside Web.com, Realtor.com, and TheKnot.com walking small business owners through exactly what was working in their marketing and what wasn't. At Realtor.com I trained agents on Opcity — the live-leads-by-phone system that's pretty much the same motion I'm building for your business now.
-                </p>
+            <div className="hairline-t pt-4 grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-2xl font-extrabold font-display text-cobalt">8 yrs</div>
+                <div className="text-[11px] text-ink-muted leading-snug">SMB marketing — Web.com, Realtor.com, TheKnot.com</div>
               </div>
-              <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Phone-by-phone with SMB owners</p>
-                  <p className="text-xs text-slate-500">Web.com · Realtor.com · TheKnot.com</p>
-                </div>
+              <div>
+                <div className="text-2xl font-extrabold font-display text-cobalt">4 yrs</div>
+                <div className="text-[11px] text-ink-muted leading-snug">Production DBA — MSSQL, Postgres, Python</div>
               </div>
             </div>
-
-            {/* Credential 2: Production DBA */}
-            <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <div className="space-y-4">
-                <span className="inline-block bg-indigo-50 text-indigo-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  💻 PRODUCTION DBA — 4 YEARS
-                </span>
-                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
-                  MSSQL and Postgres in production. Python automation. Translation: I write the code that runs at 2am while you sleep — automating what your spreadsheets are doing today. Most "AI consultants" can't write the database layer. I do.
-                </p>
-              </div>
-              <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Code that runs while you sleep</p>
-                  <p className="text-xs text-slate-500">MSSQL · Postgres · Python</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Credential 3: Prediction Model */}
-            <div className="bg-white p-8 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative group hover:shadow-md transition">
-              <div className="space-y-4">
-                <span className="inline-block bg-teal-50 text-teal-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded">
-                  📊 PREDICTION MODEL — $3B SURFACED
-                </span>
-                <p className="text-slate-650 text-sm leading-relaxed relative z-10">
-                  I built a model that scored 3 million transactions on migration likelihood. It surfaced $3 billion in revenue a Fortune-class business was silently leaving on the table. Cluster analysis, forecasting, feature engineering — same techniques scale down to small contractor jobs.
-                </p>
-              </div>
-              <div className="flex items-center space-x-3 pt-6 border-t border-slate-100 mt-6 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">$3B revenue surfaced</p>
-                  <p className="text-xs text-slate-500">Cluster analysis · Forecasting · Feature engineering</p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Former employer trust strip */}
-          <div className="w-full pt-8 border-t border-slate-200">
-            <p className="text-center text-xs font-bold text-slate-400 font-mono tracking-widest uppercase mb-6">
-              Where this founder learned the small-business marketing problem
+            <p className="text-sm text-ink leading-relaxed hairline-t pt-4">
+              A prediction model scoring 3 million transactions on migration likelihood surfaced $3B in revenue a Fortune-class business was silently leaving on the table — the same forecasting and feature-engineering techniques, scaled down to a single contractor's phone line.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">Web<span className="text-indigo-600">.com</span></span>
-                <span className="text-[11px] text-slate-500 mt-1.5">SMB websites · SEO · SEM</span>
-              </div>
-              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">Realtor<span className="text-rose-600">.com</span></span>
-                <span className="text-[11px] text-slate-500 mt-1.5">Live-leads-by-phone (Opcity)</span>
-              </div>
-              <div className="bg-white p-6 rounded-lg border border-slate-200/60 flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-lg font-bold tracking-tight text-slate-700 font-display">The<span className="text-emerald-600">Knot</span>.com</span>
-                <span className="text-[11px] text-slate-500 mt-1.5">Vendor listings · conversion</span>
-              </div>
-            </div>
-          </div>
-
+          </aside>
         </div>
       </section>
 
-      {/* SECTION 5: LEAD CAPTURE FORM AND DYNAMIC AI AUDIT RESULTS */}
-      <section id="lead-capture-form" className="py-24 px-6 bg-brand-navy bg-[#0F1929] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-[#0F1929] to-[#0F1929] pointer-events-none"></div>
+      {/* PRICING — hairline ledger table */}
+      <section className="py-24 px-6 bg-limestone hairline-b">
+        <div className="max-w-4xl mx-auto flex flex-col space-y-10">
+          <div className="max-w-2xl space-y-3" data-reveal>
+            <span className="spec-label">Pricing</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-ink">
+              Real market ranges. Scope sets the number.
+            </h2>
+          </div>
 
+          <div className="hairline bg-paper divide-y divide-hairline" data-reveal data-delay="150">
+            {TIERS.map((t) => (
+              <div key={t.name} className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-center">
+                <div className="md:col-span-5">
+                  <h3 className="text-lg font-bold font-display text-ink">{t.name}</h3>
+                  <p className="text-sm text-ink-muted leading-relaxed mt-1">{t.scope}</p>
+                </div>
+                <div className="md:col-span-3">
+                  <div className="text-2xl font-extrabold font-display text-cobalt">{t.price}</div>
+                  <div className="text-[11px] text-ink-muted mt-1">{t.note}</div>
+                </div>
+                <div className="md:col-span-4 md:text-right">
+                  <a
+                    href="#lead-capture-form"
+                    className="cta-stamp btn-press inline-block border border-ink text-ink hover:bg-ink hover:text-white font-bold text-sm py-3 px-6 transition"
+                  >
+                    Book the audit
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* LEAD CAPTURE FORM AND DYNAMIC AI AUDIT RESULTS — the functional core */}
+      <section id="lead-capture-form" className="py-24 px-6 bg-ink text-white relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10 space-y-12">
-          
-          <div className="text-center space-y-4">
-            <span className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/25 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400 font-mono">
-              📅 FREE GOOGLE PROFILE AUDIT — 15 MIN CALL IF WE'RE A FIT
+
+          <div className="text-center space-y-4" data-reveal>
+            <span className="inline-flex items-center space-x-2 border border-white/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70">
+              Free missed-call audit — 48 hour turnaround
             </span>
             <h2 className="text-3xl md:text-5xl font-extrabold font-display text-white">
-              Get your free Google Profile audit.
+              Get your free audit.
             </h2>
-            <p className="text-slate-350 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              I'll pull your Google Business Profile, compare it to a top local competitor in your trade, and email you 3 specific things costing you jobs right now. If we're a fit, we hop on a 15-minute call. If not, the audit is yours to keep — no follow-ups, no nonsense.
+            <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              I'll pull your Google Business Profile, compare it to a top local competitor in your trade, and email you 3 specific things costing you jobs right now. If we're a fit, we hop on a 15-minute call. If not, the audit is yours to keep.
             </p>
           </div>
 
           {/* Risk reversal panel */}
-          <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto">
+          <div className="border border-white/15 p-6 md:p-8 max-w-3xl mx-auto" data-reveal>
             <div className="flex items-start space-x-4">
-              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0 mt-1" />
+              <CheckCircle2 className="w-6 h-6 text-cobalt shrink-0 mt-1" />
               <div>
-                <p className="text-white font-bold text-lg leading-tight mb-1">
-                  No-risk promise.
-                </p>
-                <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                <p className="text-white font-bold text-lg leading-tight mb-1">No-risk promise.</p>
+                <p className="text-white/60 text-sm md:text-base leading-relaxed">
                   If your free audit doesn't surface at least 3 actionable wins for your business, you don't pay for the build. Replies to my emails go to a real person — me — not a noreply inbox.
                 </p>
               </div>
@@ -888,134 +648,92 @@ export default function App() {
           </div>
 
           {/* Form and Outcome wrapper */}
-          <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 md:p-10 shadow-2xl relative min-h-[480px]">
-            
+          <div className="border border-white/15 p-6 md:p-10 relative min-h-[480px]" data-reveal data-delay="150">
+
             {!success ? (
               <form onSubmit={handleFormSubmit} className="space-y-6">
 
                 {/* Calculator context line */}
-                <div className="bg-indigo-950/80 border border-indigo-500/30 p-4 rounded-lg flex items-start space-x-3 text-indigo-200 text-xs">
-                  <Sparkles className="w-5 h-5 text-indigo-400 shrink-0" />
+                <div className="border border-cobalt/40 bg-cobalt/10 p-4 flex items-start space-x-3 text-white/80 text-xs">
+                  <TrendingUp className="w-5 h-5 text-cobalt shrink-0" />
                   <div>
-                    <p className="font-semibold text-white">Your audit will use the leads-calculator inputs above.</p>
+                    <p className="font-semibold text-white">Dial in your numbers — this feeds your audit.</p>
                     <p className="mt-0.5">
-                      Targeting <span className="font-bold text-amber-400">{estMonthlySearches} monthly searches</span> at {estCloseRate}% close rate × ${estTicket} ticket — a 10-point close-rate lift would mean <span className="font-bold text-emerald-400">${monthlyRevenueAtStake.toLocaleString()}/month</span> (${annualRevenueAtStake.toLocaleString()}/year). Move the sliders above to adjust.
+                      Targeting <span className="font-bold text-white">{estMonthlySearches} monthly searches</span> at {estCloseRate}% close rate × ${estTicket} ticket — a 10-point close-rate lift would mean <span className="font-bold text-white">${monthlyRevenueAtStake.toLocaleString()}/month</span> (${annualRevenueAtStake.toLocaleString()}/year).
                     </p>
                   </div>
                 </div>
 
+                {/* ROI sliders */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-white/10 p-5">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-white/70">
+                      <span>Monthly local searches</span>
+                      <span className="font-mono text-white">{estMonthlySearches}</span>
+                    </div>
+                    <input type="range" min="20" max="500" value={estMonthlySearches} onChange={(e) => setEstMonthlySearches(parseInt(e.target.value))} className="w-full accent-white cursor-pointer" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-white/70">
+                      <span>Close rate</span>
+                      <span className="font-mono text-white">{estCloseRate}%</span>
+                    </div>
+                    <input type="range" min="5" max="40" value={estCloseRate} onChange={(e) => setEstCloseRate(parseInt(e.target.value))} className="w-full accent-white cursor-pointer" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-white/70">
+                      <span>Average ticket</span>
+                      <span className="font-mono text-white">${estTicket}</span>
+                    </div>
+                    <input type="range" min="100" max="5000" step="50" value={estTicket} onChange={(e) => setEstTicket(parseInt(e.target.value))} className="w-full accent-white cursor-pointer" />
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Full Name */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Full Name <span className="text-amber-400">*</span>
-                    </label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Full Name <span className="text-cobalt">*</span></label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <User className="w-4.5 h-4.5" />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="Jane Smith"
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><User className="w-4.5 h-4.5" /></div>
+                      <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="Jane Smith" />
                     </div>
                   </div>
 
-                  {/* Business Email */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Business Email <span className="text-amber-400">*</span>
-                    </label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Business Email <span className="text-cobalt">*</span></label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <Mail className="w-4.5 h-4.5" />
-                      </div>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="jane@acmeplumbing.com"
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><Mail className="w-4.5 h-4.5" /></div>
+                      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="jane@acmeplumbing.com" />
                     </div>
                   </div>
 
-                  {/* Phone — optional but preferred */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Mobile Number <span className="text-slate-500 normal-case font-normal">— optional, we'll text you first</span>
-                    </label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Mobile Number <span className="text-white/40 normal-case font-normal">— optional, we'll text you first</span></label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <Phone className="w-4.5 h-4.5" />
-                      </div>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="(720) 555-0192"
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><Phone className="w-4.5 h-4.5" /></div>
+                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="(720) 555-0192" />
                     </div>
                   </div>
 
-                  {/* Business Name */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Business Name <span className="text-amber-400">*</span>
-                    </label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Business Name <span className="text-cobalt">*</span></label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <Building2 className="w-4.5 h-4.5" />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="Acme Plumbing"
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><Building2 className="w-4.5 h-4.5" /></div>
+                      <input type="text" required value={company} onChange={(e) => setCompany(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="Acme Plumbing" />
                     </div>
                   </div>
 
-                  {/* City + State */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                      City and State <span className="text-amber-400">*</span>
-                    </label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-white/60">City and State <span className="text-cobalt">*</span></label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                        <Building2 className="w-4.5 h-4.5" />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={serviceArea}
-                        onChange={(e) => setServiceArea(e.target.value)}
-                        className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                        placeholder="Denver, CO"
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><Building2 className="w-4.5 h-4.5" /></div>
+                      <input type="text" required value={serviceArea} onChange={(e) => setServiceArea(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="Denver, CO" />
                     </div>
                   </div>
                 </div>
 
-                {/* Trade */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                    What's your trade? <span className="text-amber-400">*</span>
-                  </label>
-                  <select
-                    required
-                    value={trade}
-                    onChange={(e) => setTrade(e.target.value)}
-                    className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base cursor-pointer appearance-none"
-                  >
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/60">What's your trade? <span className="text-cobalt">*</span></label>
+                  <select required value={trade} onChange={(e) => setTrade(e.target.value)} className="w-full bg-ink border border-white/20 py-3 px-4 text-white focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base cursor-pointer appearance-none">
                     <option value="" disabled>Select your trade...</option>
                     <option value="Plumber">Plumber</option>
                     <option value="Electrician">Electrician</option>
@@ -1029,17 +747,9 @@ export default function App() {
                   </select>
                 </div>
 
-                {/* Current lead source */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Where do most of your leads come from today? <span className="text-amber-400">*</span>
-                  </label>
-                  <select
-                    required
-                    value={currentLeadSource}
-                    onChange={(e) => setCurrentLeadSource(e.target.value)}
-                    className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base cursor-pointer appearance-none"
-                  >
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Where do most of your leads come from today? <span className="text-cobalt">*</span></label>
+                  <select required value={currentLeadSource} onChange={(e) => setCurrentLeadSource(e.target.value)} className="w-full bg-ink border border-white/20 py-3 px-4 text-white focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base cursor-pointer appearance-none">
                     <option value="" disabled>Pick the closest match...</option>
                     <option value="Google search (organic / Map Pack)">Google search (organic / Map Pack)</option>
                     <option value="Word of mouth / referrals">Word of mouth / referrals</option>
@@ -1050,114 +760,72 @@ export default function App() {
                   </select>
                 </div>
 
-                {/* GBP URL — optional, improves audit accuracy */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Google Business Profile URL <span className="text-slate-500 normal-case font-normal">— optional, enables a deeper audit</span>
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/60">Google Business Profile URL <span className="text-white/40 normal-case font-normal">— optional, enables a deeper audit</span></label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550">
-                      <Building2 className="w-4.5 h-4.5" />
-                    </div>
-                    <input
-                      type="url"
-                      value={gbpUrl}
-                      onChange={(e) => setGbpUrl(e.target.value)}
-                      className="w-full bg-[#0F1929] border border-white/15 rounded-lg py-3 pl-11 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm md:text-base"
-                      placeholder="https://maps.app.goo.gl/..."
-                    />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40"><Building2 className="w-4.5 h-4.5" /></div>
+                    <input type="url" value={gbpUrl} onChange={(e) => setGbpUrl(e.target.value)} className="w-full bg-transparent border border-white/20 py-3 pl-11 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-cobalt transition duration-150 text-sm md:text-base" placeholder="https://maps.app.goo.gl/..." />
                   </div>
-                  <p className="text-[11px] text-slate-500">Find it by searching your business name on Google Maps and copying the URL.</p>
+                  <p className="text-[11px] text-white/40">Find it by searching your business name on Google Maps and copying the URL.</p>
                 </div>
 
-                {/* Submit button */}
                 <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="btn-press w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-755 text-slate-950 font-extrabold py-4 px-6 rounded-lg text-base shadow-xl shadow-amber-500/10 cursor-pointer flex items-center justify-center space-x-2"
-                  >
+                  <button type="submit" disabled={isSubmitting} className="cta-stamp btn-press w-full bg-white hover:bg-white/90 disabled:bg-white/40 text-ink font-extrabold py-4 px-6 text-base cursor-pointer flex items-center justify-center space-x-2">
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin text-slate-950" />
-                        <span>Generating Your Custom AI Recommendations...</span>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Running your audit...</span>
                       </>
                     ) : (
-                      <>
-                        <span>Book My Free Audit &rarr;</span>
-                      </>
+                      <span>Book my free audit &rarr;</span>
                     )}
                   </button>
-                  
-                  <p className="text-center text-xs text-slate-400 mt-3 font-semibold">
-                    First-cohort pricing — <span className="text-amber-400">capped at 5 contractors</span>. Replies go to a real inbox, not noreply.
-                  </p>
+                  <p className="text-center text-xs text-white/40 mt-3 font-semibold">Replies go to a real inbox, not noreply.</p>
                 </div>
 
               </form>
             ) : (
               <div className="space-y-8 audit-result-animate">
-                
-                {/* Header state */}
-                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between border-b border-white/10 pb-6 gap-4">
+
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between hairline-b border-white/10 pb-6 gap-4">
                   <div className="flex items-center space-x-3.5">
-                    <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-400/30 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                      🎉
-                    </div>
+                    <div className="w-12 h-12 border border-cobalt/40 flex items-center justify-center text-2xl shrink-0">🎉</div>
                     <div>
                       <h3 className="text-xl md:text-2xl font-bold font-display text-white">Audit Ready, {name}.</h3>
-                      <p className="text-xs text-slate-400">Your custom audit is on its way to {email}</p>
+                      <p className="text-xs text-white/50">Your custom audit is on its way to {email}</p>
                     </div>
                   </div>
-                  <div className={`font-mono text-xs px-3 py-1.5 rounded-lg flex items-center justify-center space-x-2 border ${aiTier === 'hot' ? 'bg-amber-500/15 border-amber-400/30 text-amber-300' : aiTier === 'cold' ? 'bg-slate-700/40 border-slate-500/30 text-slate-400' : 'bg-indigo-550/15 border-indigo-400/30 text-indigo-300'}`}>
-                    <span className={`w-2 h-2 rounded-full inline-block animate-pulse ${aiTier === 'hot' ? 'bg-amber-400' : aiTier === 'cold' ? 'bg-slate-400' : 'bg-indigo-450'}`}></span>
+                  <div className={`font-mono text-xs px-3 py-1.5 flex items-center justify-center space-x-2 border ${aiTier === 'hot' ? 'border-cobalt text-white' : 'border-white/20 text-white/60'}`}>
+                    <span className="w-2 h-2 rounded-full inline-block bg-cobalt animate-pulse"></span>
                     <span>FIT: <strong className="text-white ml-1">{aiTier ? aiTier.toUpperCase() : 'WARM'}</strong></span>
                   </div>
                 </div>
 
-                {/* Subtitle brief */}
                 <div className="space-y-1.5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-indigo-400 font-mono">Real-Time Lead Analysis Outcome</p>
-                  <p className="text-sm md:text-base text-slate-200 leading-relaxed italic">
-                    "{aiSummary || `Audit drafted for ${company} (${trade}, ${serviceArea}). Here are 3 specific things in your Google Profile and lead-response loop that look like the easiest wins right now.`}"
+                  <p className="spec-label text-white/60">Real-Time Lead Analysis Outcome</p>
+                  <p className="text-sm md:text-base text-white/80 leading-relaxed italic">
+                    "{aiSummary || `Audit drafted for ${company} (${trade}, ${serviceArea}). Here are the specific things in your phone-response loop that look like the easiest wins right now.`}"
                   </p>
                 </div>
 
-                {/* recommendations matrix block */}
                 <div className="space-y-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Custom Recommendations List</p>
-                  
+                  <p className="spec-label text-white/60">Custom Recommendations</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {aiRecommendations.map((rec, i) => (
-                      <div key={i} className="bg-slate-950/80 border border-white/5 rounded-xl p-5 hover:border-indigo-500/30 transition flex flex-col justify-between">
+                      <div key={i} className="border border-white/10 p-5 hover:border-cobalt/50 transition flex flex-col justify-between">
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between text-[11px] font-mono text-indigo-400 uppercase font-semibold">
-                            <span>Strategy {i+1}</span>
-                            <span className="bg-slate-900 border border-white/5 px-2 py-0.5 rounded text-[9px]">Priority</span>
+                          <div className="flex items-center justify-between text-[11px] font-mono text-cobalt uppercase font-semibold">
+                            <span>Strategy {i + 1}</span>
                           </div>
-                          
-                          <h4 className="font-bold text-sm text-white font-display leading-snug">
-                            {rec.title}
-                          </h4>
-                          
-                          <p className="text-xs text-slate-300 leading-relaxed">
-                            {rec.description}
-                          </p>
+                          <h4 className="font-bold text-sm text-white font-display leading-snug">{rec.title}</h4>
+                          <p className="text-xs text-white/60 leading-relaxed">{rec.description}</p>
                         </div>
-
-                        <div className="pt-4 border-t border-white/5 mt-4 space-y-3 shrink-0">
-                          <p className="text-[10px] text-emerald-400 font-semibold font-mono">
-                            ⚡ {rec.roi}
-                          </p>
-                          
-                          <button 
+                        <div className="pt-4 hairline-t border-white/10 mt-4 space-y-3 shrink-0">
+                          <p className="text-[10px] text-white/70 font-semibold font-mono">{rec.roi}</p>
+                          <button
                             disabled={isDemoRequestSent[i]}
                             onClick={() => requestDemoSpec(i, rec.title)}
-                            className={`w-full py-2 px-3 rounded text-[10px] font-bold uppercase tracking-wider transition ${
-                              isDemoRequestSent[i] 
-                                ? 'bg-emerald-500 text-white cursor-default' 
-                                : 'bg-[#0F1929] hover:bg-slate-800 text-slate-350 border border-white/10 hover:text-white cursor-pointer'
-                            }`}
+                            className={`w-full py-2 px-3 text-[10px] font-bold uppercase tracking-wider transition ${isDemoRequestSent[i] ? 'bg-cobalt text-white cursor-default' : 'bg-transparent hover:bg-white/5 text-white/50 border border-white/10 hover:text-white cursor-pointer'}`}
                           >
                             {isDemoRequestSent[i] ? '✓ Requested Callback' : 'Request Demo build'}
                           </button>
@@ -1167,14 +835,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* GBP gaps callout — only shown when data is available */}
                 {aiMissingGbp.length > 0 && (
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">Quick wins spotted in your Google Profile</p>
+                  <div className="border border-cobalt/30 p-5 space-y-3">
+                    <p className="spec-label text-white/60">Quick wins spotted in your Google Profile</p>
                     <ul className="space-y-1.5">
                       {aiMissingGbp.map((gap, i) => (
-                        <li key={i} className="flex items-start space-x-2 text-xs text-slate-300">
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <li key={i} className="flex items-start space-x-2 text-xs text-white/70">
+                          <AlertTriangle className="w-3.5 h-3.5 text-cobalt shrink-0 mt-0.5" />
                           <span>{gap}</span>
                         </li>
                       ))}
@@ -1182,16 +849,15 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Tier-aware next step */}
                 {aiTier === 'hot' && calendlyUrl ? (
-                  <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-6 space-y-4">
+                  <div className="border border-cobalt p-6 space-y-4">
                     <div className="space-y-1">
                       <p className="text-sm font-bold text-white flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+                        <Calendar className="w-4 h-4 text-cobalt shrink-0" />
                         <span>You're a strong fit — book your free 15-minute call now.</span>
                       </p>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        We'll walk through your Google Profile gaps and exactly what fixing them is worth to your business. Audit summary sent to <strong className="text-slate-300">{email}</strong>.
+                      <p className="text-xs text-white/50 leading-relaxed">
+                        We'll walk through your gaps and exactly what fixing them is worth to your business. Audit summary sent to <strong className="text-white/80">{email}</strong>.
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 pt-1">
@@ -1200,32 +866,30 @@ export default function App() {
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => window.plausible?.('calendly_clicked')}
-                        className="btn-press inline-flex items-center justify-center space-x-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm py-3 px-6 rounded-lg"
+                        className="cta-stamp btn-press inline-flex items-center justify-center space-x-2 bg-white hover:bg-white/90 text-ink font-extrabold text-sm py-3 px-6"
                       >
                         <Calendar className="w-4 h-4" />
                         <span>Book my free 15-minute call &rarr;</span>
                       </a>
                       <button
                         onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); setPhone(''); setGbpUrl(''); }}
-                        className="bg-transparent hover:bg-white/5 text-slate-400 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
+                        className="bg-transparent hover:bg-white/5 text-white/50 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 transition"
                       >
                         Submit another
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-[#0F1929]/80 border border-indigo-500/20 p-5 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="border border-white/10 p-5 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="space-y-1 text-center md:text-left">
-                      <p className="text-sm font-bold text-white flex items-center justify-center md:justify-start space-x-1.5">
-                        <span>📆 We'll follow up within 1 business day.</span>
-                      </p>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Audit summary sent to <strong className="text-slate-300">{email}</strong>. Reply to that email or reach us at <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline">origin@stoneveil.io</a>.
+                      <p className="text-sm font-bold text-white">We'll follow up within 1 business day.</p>
+                      <p className="text-xs text-white/50 leading-relaxed">
+                        Audit summary sent to <strong className="text-white/80">{email}</strong>. Reply to that email or reach us at <a href="mailto:origin@stoneveil.io" className="text-cobalt hover:underline">origin@stoneveil.io</a>.
                       </p>
                     </div>
                     <button
                       onClick={() => { setSuccess(false); setAiTier(null); setAiRecommendations([]); setAiSummary(''); setAiMissingGbp([]); setCalendlyUrl(null); setTrade(''); setServiceArea(''); setCurrentLeadSource(''); setPhone(''); setGbpUrl(''); }}
-                      className="bg-transparent hover:bg-white/5 text-slate-300 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg transition"
+                      className="bg-transparent hover:bg-white/5 text-white/70 font-medium text-xs px-4 py-2 border border-white/10 hover:border-white/20 transition"
                     >
                       Submit another
                     </button>
@@ -1237,287 +901,127 @@ export default function App() {
 
           </div>
 
-          {/* Secure Trust bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-slate-400 text-xs font-semibold uppercase tracking-wider border-t border-white/10 pt-8 mt-6">
-            <div className="flex items-center justify-center space-x-2">
-              <span>🔒</span>
-              <span>Your data is never sold or shared</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <span>📅</span>
-              <span>We'll reach out within 1 business day</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <span>✅</span>
-              <span>No contracts, no commitment required</span>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-white/50 text-xs font-semibold uppercase tracking-wider hairline-t border-white/10 pt-8 mt-6">
+            <div>Your data is never sold or shared</div>
+            <div>We'll reach out within 1 business day</div>
+            <div>No contracts, no commitment required</div>
           </div>
 
         </div>
       </section>
 
-      {/* SECTION 6: FAQ (Handle Objections) */}
-      <section className="py-24 px-6 bg-white border-t border-slate-100">
-        <div className="max-w-4xl mx-auto flex flex-col space-y-16 items-center">
-          
-          <div className="text-center space-y-3 max-w-2xl">
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0F1929] font-display">
-              Common Questions
+      {/* FAQ */}
+      <section className="py-24 px-6 bg-paper hairline-b">
+        <div className="max-w-3xl mx-auto flex flex-col space-y-14">
+          <div className="space-y-3" data-reveal>
+            <span className="spec-label">FAQ</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-ink">
+              Common questions
             </h2>
-            <p className="text-slate-600 text-base md:text-lg">
-              Straight answers to the questions contractors keep asking on the audit call.
-            </p>
           </div>
 
-          {/* FAQ Accordion container */}
-          <div className="w-full space-y-4">
-
-            {/* Q1 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(0)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">How long until my site is live?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 0 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 0 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p><strong>1–2 weeks from kick-off.</strong> The Google Profile audit happens on a free 15-minute call before that, so you see the work before you commit to anything.</p>
-                  <p><a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">Book the 15-min audit call &rarr;</a></p>
-                </div>
-              )}
-            </div>
-
-            {/* Q2 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(1)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">Do I need to be tech-savvy?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 1 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 1 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p><strong>No.</strong> You keep doing the jobs. I handle the site, the Google Profile, and the lead-response automations. Replies to my emails come straight to me — not a noreply inbox.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Q3 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(2)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">Will this work with the tools I already use?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 2 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 2 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>Yes. If you already use Jobber, Housecall Pro, ServiceTitan, Google Calendar, QuickBooks, or just a phone and a notebook — we wire into it. Nobody's forcing you to switch software.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Q4 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(3)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">How much does it cost?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 3 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 3 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p><strong>Audit: free.</strong> Build: $3K–$5K depending on scope. Retainer: $300/month for the automated lead response + monthly tuning. First-cohort pricing — capped at 5 contractors. You get a written quote before any work starts, and there are no surprise add-ons.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Q5 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(4)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What if I already have a website?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 4 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 4 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>Most contractor sites I see are slow on a phone, missing from the Google Map Pack, or both. The audit shows you exactly where yours stands next to the local competitor winning your searches. <strong>If your site is already winning, I'll tell you — and you don't need me.</strong></p>
-                </div>
-              )}
-            </div>
-
-            {/* Q6 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => toggleFaq(5)}
-                className="w-full py-5 px-6 flex items-center justify-between text-left focus:outline-none hover:bg-slate-50 transition duration-150"
-              >
-                <span className="font-bold text-[#0F1929] font-display text-base md:text-lg">What's the ROI?</span>
-                <span className="text-indigo-600 font-extrabold text-xl ml-4 shrink-0">
-                  {activeFaq === 5 ? '−' : '+'}
-                </span>
-              </button>
-              {activeFaq === 5 && (
-                <div className="px-6 pb-6 text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-50 pt-4 bg-slate-50/30">
-                  <p>Honest answer: it depends on your search volume, close rate, and average ticket. The <a href="#lead-capture-form" className="text-indigo-600 hover:underline font-semibold">leads calculator</a> above is the same math I'll walk through on the audit call. If a 10-point close-rate lift is worth more to you than $300/month, the retainer pays for itself. If it's not, I'll tell you.</p>
-                </div>
-              )}
-            </div>
-
+          <div className="w-full" data-reveal data-delay="150">
+            {FAQS.map((faq, i) => (
+              <div key={i} className="hairline-t">
+                <button
+                  onClick={() => toggleFaq(i)}
+                  className="w-full py-5 flex items-center justify-between text-left focus:outline-none hover:opacity-70 transition duration-150"
+                >
+                  <span className="font-bold text-ink font-display text-base md:text-lg pr-4">{faq.q}</span>
+                  <span className="text-cobalt font-extrabold text-xl shrink-0">{activeFaq === i ? '−' : '+'}</span>
+                </button>
+                {activeFaq === i && (
+                  <div className="pb-6 text-sm text-ink-muted leading-relaxed max-w-2xl">
+                    <p>{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-
         </div>
       </section>
 
-      {/* SECTION 7: FINAL CTA STRIP */}
-      <section className="py-20 px-6 bg-brand-navy bg-[#0F1929] text-white text-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-indigo-600/10 rounded-full blur-[90px] pointer-events-none"></div>
-
-        <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center space-y-6">
+      {/* FINAL CTA STRIP */}
+      <section className="py-20 px-6 bg-ink text-white text-center relative overflow-hidden">
+        <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center space-y-6" data-reveal>
           <h2 className="text-3xl md:text-4xl font-extrabold font-display text-white max-w-2xl leading-snug">
-            Ready to start winning the jobs you're losing?
+            Ready to stop losing bids to your phone?
           </h2>
-          <p className="text-slate-400 text-base md:text-lg max-w-xl">
-            Free 15-minute Google Profile audit. You see what your competitor is doing better, and you keep the report either way. No follow-ups, no nonsense.
+          <p className="text-white/50 text-base md:text-lg max-w-xl">
+            Free 48-hour missed-call audit. You see exactly what an unanswered phone is costing you, and you keep the report either way.
           </p>
-
           <div className="pt-4">
-            <a
-              href="#lead-capture-form"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-center py-4 px-8 rounded-lg shadow-xl shadow-amber-500/20 transition-all text-base inline-block hover:-translate-y-0.5"
-            >
-              Get my free Google Profile audit &rarr;
+            <a href="#lead-capture-form" className="cta-viewfinder bg-white hover:bg-white/90 text-ink font-extrabold text-center py-4 px-8 transition-all text-base inline-block">
+              Book the audit &rarr;
             </a>
           </div>
-
-          <p className="text-xs text-slate-500 pt-2 font-mono">
-            Or email me directly: <a href="mailto:origin@stoneveil.io" className="text-indigo-400 hover:underline font-semibold">origin@stoneveil.io</a>
+          <p className="text-xs text-white/40 pt-2 font-mono">
+            Or email me directly: <a href="mailto:origin@stoneveil.io" className="text-white hover:underline font-semibold">origin@stoneveil.io</a>
           </p>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[#0F1929] border-t border-white/5 py-12 px-6 text-slate-400 text-center text-sm">
+      {/* FOOTER — title block */}
+      <footer className="bg-ink hairline-t border-white/10 py-12 px-6 text-white/50 text-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          
           <div className="flex flex-col items-center md:items-start space-y-2">
-            <span className="font-display font-bold text-white text-lg tracking-tight">stone<span className="text-indigo-500">VEIL</span> Operations LLC</span>
-            <p className="text-xs text-slate-500">&copy; {new Date().getFullYear()} stoneVEIL Operations LLC. All rights reserved.</p>
+            <span className="font-display font-bold text-white text-lg tracking-tight">stone<span className="text-cobalt">VEIL</span> Operations LLC</span>
+            <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} stoneVEIL Operations LLC. All rights reserved.</p>
           </div>
-          
           <div className="flex items-center space-x-6 text-xs font-semibold">
             <a href="#" className="hover:text-white transition">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition inline-flex items-center space-x-1">
-              <span>LinkedIn</span>
-            </a>
+            <a href="#" className="hover:text-white transition">LinkedIn</a>
           </div>
-
         </div>
       </footer>
 
       {/* MOBILE STICKY BOTTOM CAPTURE BAR */}
-      <div className={`fixed bottom-0 inset-x-0 bg-[#0F1929]/95 border-t border-white/10 backdrop-blur-md px-6 py-4 flex items-center justify-between text-white z-40 md:hidden transition-transform duration-300 ${stickyBarVisible ? 'translate-y-0' : 'translate-y-full'}`}>
+      <div className={`fixed bottom-0 inset-x-0 bg-ink/95 hairline-t border-white/10 backdrop-blur-md px-6 py-4 flex items-center justify-between text-white z-40 md:hidden transition-transform duration-300 ${stickyBarVisible ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase font-mono text-amber-400 font-bold tracking-wider">Free · 15 min</span>
-          <span className="text-xs font-semibold text-slate-350">Google Profile audit</span>
+          <span className="text-[10px] uppercase font-mono text-white/50 font-bold tracking-wider">Free · 48 hr</span>
+          <span className="text-xs font-semibold text-white/80">Missed-call audit</span>
         </div>
-        <a
-          href="#lead-capture-form"
-          className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded shadow-lg"
-        >
-          Get Audit
-        </a>
+        <a href="#lead-capture-form" className="bg-white text-ink font-extrabold text-xs px-4 py-2.5">Get Audit</a>
       </div>
 
       {/* Dev-only export modal */}
       {import.meta.env.DEV && isExportOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/15 rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl relative animate-scale-up">
-            
-            {/* Header */}
-            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-ink border border-white/15 w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl relative">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/30">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                  <Download className="w-5 h-5 text-indigo-400" />
+                  <Download className="w-5 h-5 text-cobalt" />
                   <span>Your Standalone HTML Landing Page Code</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  100% self-contained file with inline Tailwind, responsive grid layout, interactive JS states & developer integration guide notes.
-                </p>
+                <p className="text-xs text-white/50 mt-1">100% self-contained file with inline Tailwind, responsive grid layout, interactive JS states & developer integration guide notes.</p>
               </div>
-              <button 
-                onClick={() => setIsExportOpen(false)}
-                className="text-slate-400 hover:text-white transition text-lg font-bold p-1 bg-white/5 hover:bg-white/10 rounded"
-              >
-                ✕
-              </button>
+              <button onClick={() => setIsExportOpen(false)} className="text-white/50 hover:text-white transition text-lg font-bold p-1 bg-white/5 hover:bg-white/10">✕</button>
             </div>
-
-            {/* Code Field */}
-            <div className="flex-1 overflow-y-auto p-4 bg-[#0A0D14] font-mono text-xs text-slate-300">
+            <div className="flex-1 overflow-y-auto p-4 bg-black/40 font-mono text-xs text-white/70">
               {htmlCode ? (
-                <pre className="whitespace-pre overflow-x-auto text-[11px] leading-relaxed">
-                  {htmlCode}
-                </pre>
+                <pre className="whitespace-pre overflow-x-auto text-[11px] leading-relaxed">{htmlCode}</pre>
               ) : (
                 <div className="py-20 flex flex-col items-center justify-center space-y-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-                  <p className="text-slate-400 text-xs">Assembling full HTML templates...</p>
+                  <Loader2 className="w-8 h-8 animate-spin text-cobalt" />
+                  <p className="text-white/50 text-xs">Assembling full HTML templates...</p>
                 </div>
               )}
             </div>
-
-            {/* Footer Buttons */}
-            <div className="p-4 border-t border-white/10 bg-slate-950/80 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center space-x-2 text-xs text-slate-450">
-                <span>📁 Size: ~ 64KB</span>
-                <span>•</span>
+            <div className="p-4 border-t border-white/10 bg-black/30 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center space-x-2 text-xs text-white/40">
                 <span>Deployable to Netlify, Github-Pages, Static Host</span>
               </div>
               <div className="flex items-center space-x-3">
-                <button 
-                  onClick={handleCopyCode}
-                  className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer"
-                >
-                  {copiedCode ? (
-                    <>
-                      <Check className="w-4 h-4 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>Copy to Clipboard</span>
-                    </>
-                  )}
+                <button onClick={handleCopyCode} className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer">
+                  {copiedCode ? (<><Check className="w-4 h-4 text-cobalt" /><span>Copied!</span></>) : (<><Copy className="w-4 h-4" /><span>Copy to Clipboard</span></>)}
                 </button>
-                <button 
-                  onClick={handleDownloadCode}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer"
-                >
+                <button onClick={handleDownloadCode} className="bg-cobalt hover:opacity-90 text-white font-bold py-2 px-4 text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer">
                   <Download className="w-4 h-4" />
                   <span>Download HTML File</span>
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       )}

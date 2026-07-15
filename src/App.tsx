@@ -11,9 +11,6 @@ import {
   Building2,
   User,
   AlertTriangle,
-  Copy,
-  Check,
-  Download,
 } from 'lucide-react';
 
 declare global {
@@ -145,11 +142,6 @@ export default function App() {
   // Navigation & Interactive States
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  // Standalone Code Export Modal (dev-only utility, unrelated to public design)
-  const [isExportOpen, setIsExportOpen] = useState(false);
-  const [htmlCode, setHtmlCode] = useState<string>('');
-  const [copiedCode, setCopiedCode] = useState(false);
-
   // ROI Calculator inputs — leads-won model
   const [estMonthlySearches, setEstMonthlySearches] = useState<number>(120);
   const [estCloseRate, setEstCloseRate] = useState<number>(15); // percent
@@ -188,13 +180,6 @@ export default function App() {
   const [revealAmount, setRevealAmount] = useState(0);
 
   useEffect(() => {
-    if (import.meta.env.DEV) {
-      fetch('/landing.html')
-        .then((r) => r.text())
-        .then((text) => setHtmlCode(text))
-        .catch(() => {});
-    }
-
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollPercent = (window.scrollY / scrollHeight) * 100;
@@ -249,24 +234,6 @@ export default function App() {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     setRevealAmount(Math.min(1, Math.max(0, x)));
-  };
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(htmlCode);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
-  const handleDownloadCode = () => {
-    const blob = new Blob([htmlCode], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'stoneveil_automation_landing.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const toggleFaq = (index: number) => {
@@ -352,37 +319,8 @@ export default function App() {
   return (
     <div className="bg-paper text-ink font-sans antialiased selection:bg-cobalt selection:text-white">
 
-      {/* Dev-only export bar — hidden in production builds */}
-      {import.meta.env.DEV && (
-        <div className="bg-ink border-b border-white/10 text-white py-2.5 px-4 sticky top-0 z-50 text-xs flex flex-wrap gap-4 items-center justify-between shadow-md">
-          <div className="flex items-center space-x-2">
-            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <p className="font-medium text-white/70">
-              Developer Sandbox Mode: <span className="text-white">stoneVEIL Operations LLC</span>
-            </p>
-          </div>
-          <div className="flex items-center space-x-2.5">
-            <button
-              onClick={() => setIsExportOpen(true)}
-              className="bg-cobalt hover:opacity-90 text-white font-semibold py-1 px-3 text-[11px] transition duration-150 inline-flex items-center space-x-1"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export Standalone HTML</span>
-            </button>
-            <a
-              href="/landing.html"
-              target="_blank"
-              rel="noreferrer"
-              className="bg-transparent border border-white/20 hover:bg-white/5 text-white/70 font-medium py-1 px-3 text-[11px] transition"
-            >
-              Open Standalone Raw Page
-            </a>
-          </div>
-        </div>
-      )}
-
       {/* HEADER / TITLE-BLOCK NAVIGATION */}
-      <header className={`bg-paper hairline-b px-6 md:px-12 py-4 sticky z-40 backdrop-blur-md bg-paper/95 ${import.meta.env.DEV ? 'top-[42px]' : 'top-0'}`}>
+      <header className="bg-paper hairline-b px-6 md:px-12 py-4 sticky top-0 z-40 backdrop-blur-md bg-paper/95">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a href="#" className="flex items-center space-x-3 text-ink">
             <img src="/assets/monogram.webp" alt="" className="w-8 h-8" />
@@ -969,7 +907,7 @@ export default function App() {
             <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} stoneVEIL Operations LLC. All rights reserved.</p>
           </div>
           <div className="flex items-center space-x-6 text-xs font-semibold">
-            <a href="#" className="hover:text-white transition">Privacy Policy</a>
+            <a href="/privacy-policy.html" className="hover:text-white transition">Privacy Policy</a>
             <a href="#" className="hover:text-white transition">LinkedIn</a>
           </div>
         </div>
@@ -983,48 +921,6 @@ export default function App() {
         </div>
         <a href="#lead-capture-form" className="bg-white text-ink font-extrabold text-xs px-4 py-2.5">Get Audit</a>
       </div>
-
-      {/* Dev-only export modal */}
-      {import.meta.env.DEV && isExportOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-ink border border-white/15 w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl relative">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/30">
-              <div>
-                <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                  <Download className="w-5 h-5 text-cobalt" />
-                  <span>Your Standalone HTML Landing Page Code</span>
-                </h3>
-                <p className="text-xs text-white/50 mt-1">100% self-contained file with inline Tailwind, responsive grid layout, interactive JS states & developer integration guide notes.</p>
-              </div>
-              <button onClick={() => setIsExportOpen(false)} className="text-white/50 hover:text-white transition text-lg font-bold p-1 bg-white/5 hover:bg-white/10">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 bg-black/40 font-mono text-xs text-white/70">
-              {htmlCode ? (
-                <pre className="whitespace-pre overflow-x-auto text-[11px] leading-relaxed">{htmlCode}</pre>
-              ) : (
-                <div className="py-20 flex flex-col items-center justify-center space-y-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-cobalt" />
-                  <p className="text-white/50 text-xs">Assembling full HTML templates...</p>
-                </div>
-              )}
-            </div>
-            <div className="p-4 border-t border-white/10 bg-black/30 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center space-x-2 text-xs text-white/40">
-                <span>Deployable to Netlify, Github-Pages, Static Host</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button onClick={handleCopyCode} className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer">
-                  {copiedCode ? (<><Check className="w-4 h-4 text-cobalt" /><span>Copied!</span></>) : (<><Copy className="w-4 h-4" /><span>Copy to Clipboard</span></>)}
-                </button>
-                <button onClick={handleDownloadCode} className="bg-cobalt hover:opacity-90 text-white font-bold py-2 px-4 text-xs transition duration-155 inline-flex items-center space-x-1.5 cursor-pointer">
-                  <Download className="w-4 h-4" />
-                  <span>Download HTML File</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

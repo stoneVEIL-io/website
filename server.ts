@@ -2,7 +2,6 @@ import "dotenv/config";
 import { timingSafeEqual } from "crypto";
 import express from "express";
 import path from "path";
-import { GoogleGenAI } from "@google/genai";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { desc } from "drizzle-orm";
@@ -10,7 +9,8 @@ import { db } from "./lib/db";
 import { leads } from "./lib/schema";
 import { validateLeadInput } from "./lib/validation";
 import { fetchGbpData } from "./lib/gbp";
-import { runAudit, buildFallbackAudit } from "./lib/gemini";
+import { runAudit, buildFallbackAudit } from "./lib/audit";
+import { getAiClient } from "./lib/ai";
 import { sendAuditEmail } from "./lib/email";
 import { generateDemoPage } from "./lib/demo";
 
@@ -41,7 +41,7 @@ app.use(
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:"],
             // Browser connects to our /api and Plausible for event tracking.
-            // All other third-party calls (Gemini, Neon, Resend, Places) are server-side.
+            // All other third-party calls (AI provider, Neon, Resend, Places) are server-side.
             connectSrc: ["'self'", "https://plausible.io"],
           },
         }
@@ -80,28 +80,10 @@ const adminLimiter = rateLimit({
   message: { error: "Too many admin requests." },
 });
 
-// Initialize server-side Gemini safely
-// Securely loaded via process.env.GEMINI_API_KEY
-const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("Warning: GEMINI_API_KEY is not defined in the workspace secrets.");
-    return null;
-  }
-  return new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      },
-    },
-  });
-};
-
 // Health check — /healthz is intercepted by Cloud Run's probe layer, use /api/health
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok" }));
 
-// API Endpoint: Capture Lead and Generate Instant Custom Audit Recommendations using Gemini
+// API Endpoint: Capture Lead and Generate Instant Custom Audit Recommendations
 app.post("/api/lead", leadLimiter, async (req, res) => {
   try {
     // Validate and sanitize input payload to prevent prompt injection or spam
@@ -142,7 +124,7 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
     // GBP fetch is non-blocking — failure degrades gracefully to null
     auditParams.gbpData = await fetchGbpData(company, serviceArea);
 
-    const ai = getGeminiClient();
+    const ai = getAiClient();
     const audit = ai
       ? await runAudit(auditParams, ai)
       : buildFallbackAudit(auditParams);
@@ -278,7 +260,7 @@ app.post(
       res.send(html);
     } catch (err) {
       console.error("Demo generation failed:", err);
-      res.status(500).send("Demo generation failed — check GEMINI_API_KEY and server logs.");
+      res.status(500).send("Demo generation failed — check AI_API_KEY and server logs.");
     }
   }
 );
@@ -507,10 +489,6 @@ const startServer = async () => {
     });
     app.use(vite.middlewares);
     
-    // Explicit route for raw standalone HTML preview
-    app.get("/landing.html", (req, res) => {
-      res.sendFile(path.join(process.cwd(), "public", "landing.html"));
-    });
   } else {
     // Production Mode: Serve standard compiled assets
     const distPath = path.join(process.cwd(), "dist");
@@ -519,10 +497,6 @@ const startServer = async () => {
     app.use(express.static(path.join(process.cwd(), "public")));
     app.use(express.static(distPath));
     
-    app.get("/landing.html", (req, res) => {
-      res.sendFile(path.join(process.cwd(), "public", "landing.html"));
-    });
-
     app.get("*all", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });

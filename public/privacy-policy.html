@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — stoneVEIL Operations</title>
+    <meta name="description" content="How stoneVEIL Operations LLC collects, uses, and protects information submitted through the stoneveil.io missed-call audit tool." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://stoneveil.io/privacy-policy.html" />
+
+    <link rel="icon" href="/assets/monogram.webp" type="image/webp" />
+
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --ink: #14161A;
+        --ink-muted: #5B5F66;
+        --paper: #F7F5F1;
+        --cobalt: #2451FF;
+        --hairline: #E4E0D8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Inter Tight', system-ui, sans-serif;
+        line-height: 1.65;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 64px 24px 96px;
+      }
+      a { color: var(--cobalt); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .home-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 40px;
+      }
+      .brand {
+        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+      .brand .cobalt { color: var(--cobalt); }
+      h1 {
+        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
+        font-weight: 800;
+        font-size: 2.25rem;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      .updated {
+        color: var(--ink-muted);
+        font-size: 14px;
+        margin-bottom: 32px;
+      }
+      .notice {
+        border: 1px solid var(--hairline);
+        background: #fff;
+        padding: 16px 20px;
+        font-size: 14px;
+        color: var(--ink-muted);
+        margin-bottom: 40px;
+      }
+      h2 {
+        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin: 40px 0 12px;
+        letter-spacing: -0.01em;
+      }
+      p, li { font-size: 15.5px; color: #26282D; }
+      ul { padding-left: 20px; }
+      li { margin-bottom: 6px; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 14.5px;
+      }
+      th, td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--hairline);
+        vertical-align: top;
+      }
+      th { color: var(--ink-muted); font-weight: 600; }
+      footer {
+        margin-top: 64px;
+        padding-top: 24px;
+        border-top: 1px solid var(--hairline);
+        font-size: 13px;
+        color: var(--ink-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="home-link" href="/">&larr; Back to stone<span class="cobalt" style="color:var(--cobalt)">VEIL</span></a>
+
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: July 14, 2026</p>
+
+      <div class="notice">
+        This policy explains what stoneVEIL Operations LLC ("stoneVEIL," "we," "us") collects through
+        stoneveil.io and how it's used. It's written to match how the site actually works today. It is
+        provided as a plain-language reference, not legal advice — please have counsel review it before
+        relying on it, especially if you plan to serve customers in states with specific privacy statutes
+        (e.g. California, Colorado, Virginia).
+      </div>
+
+      <h2>1. Information you provide</h2>
+      <p>When you submit the missed-call audit form, we collect:</p>
+      <ul>
+        <li>Your name and email address</li>
+        <li>Your company name and trade (e.g. plumbing, roofing, electrical)</li>
+        <li>Your service area</li>
+        <li>Your current lead source, and estimates you provide for monthly searches, close rate, and average ticket size</li>
+      </ul>
+
+      <h2>2. Information we look up about your business</h2>
+      <p>
+        To generate your audit, we look up your business's public Google Business Profile (via the Google
+        Places API) — things like hours, services listed, review count, and photos. This is public
+        information about the business you told us about, not personal data about you as an individual.
+      </p>
+
+      <h2>3. How we use this information</h2>
+      <ul>
+        <li>Generate your AI-written audit and lead-qualification score (via Google's Gemini API)</li>
+        <li>Email you the audit report</li>
+        <li>If you qualify, offer a booking link for a discovery call (via Calendly)</li>
+        <li>Improve the audit tool and follow up about our services</li>
+      </ul>
+      <p>We do not use your submission to train third-party AI models, and we do not sell your personal information.</p>
+
+      <h2>4. Where your data is stored</h2>
+      <p>
+        Submissions are stored in a Postgres database (hosted on Neon) so we can follow up and track lead
+        status. Access to the leads dashboard is restricted to stoneVEIL staff and protected by password
+        authentication.
+      </p>
+
+      <h2>5. Who we share it with</h2>
+      <table>
+        <tr><th>Service</th><th>Purpose</th></tr>
+        <tr><td>Google (Gemini API, Places API)</td><td>Audit generation, business lookup</td></tr>
+        <tr><td>Resend</td><td>Delivering your audit email</td></tr>
+        <tr><td>Calendly</td><td>Booking discovery calls</td></tr>
+        <tr><td>Neon (Postgres)</td><td>Storing lead records</td></tr>
+      </table>
+      <p>Each of these providers processes data only as needed to provide their service to us.</p>
+
+      <h2>6. Cookies &amp; analytics</h2>
+      <p>
+        We use <a href="https://plausible.io" target="_blank" rel="noopener">Plausible Analytics</a> for
+        aggregate site traffic stats. Plausible is cookieless — it doesn't track you individually or across
+        other sites, and doesn't collect personal data. We don't run advertising trackers or set
+        cross-site tracking cookies.
+      </p>
+
+      <h2>7. Data retention</h2>
+      <p>
+        We keep lead records as long as reasonably useful for follow-up and business records, and delete
+        or anonymize them on request (see Section 9).
+      </p>
+
+      <h2>8. Security</h2>
+      <p>
+        The site runs over HTTPS, validates and sanitizes all form input, and rate-limits submissions to
+        reduce abuse. The admin dashboard requires authentication.
+      </p>
+
+      <h2>9. Your choices</h2>
+      <p>
+        To request a copy of the data we hold about you, ask us to correct it, or ask us to delete it,
+        email <a href="mailto:origin@stoneveil.io">origin@stoneveil.io</a>. We'll respond within a
+        reasonable time.
+      </p>
+
+      <h2>10. Children's privacy</h2>
+      <p>This site is intended for business owners and is not directed at children under 16. We do not knowingly collect data from children.</p>
+
+      <h2>11. Changes to this policy</h2>
+      <p>If how we handle data changes materially, we'll update this page and the "Last updated" date above.</p>
+
+      <h2>12. Contact</h2>
+      <p>stoneVEIL Operations LLC &mdash; <a href="mailto:origin@stoneveil.io">origin@stoneveil.io</a></p>
+
+      <footer>
+        &copy; 2026 stoneVEIL Operations LLC. All rights reserved.
+      </footer>
+    </div>
+  </body>
+</html>

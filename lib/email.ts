@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import type { AuditResult } from "./gemini";
+import type { AuditResult } from "./audit";
 
 export interface SendAuditEmailParams {
   name: string;

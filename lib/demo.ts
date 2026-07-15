@@ -1,6 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
+import type { GoogleGenAI } from "@google/genai";
 import type { GbpData } from "./gbp";
 import { fetchGbpData } from "./gbp";
+import { getAiClient, AI_MODEL } from "./ai";
 
 export interface DemoInput {
   businessName: string;
@@ -89,7 +90,7 @@ Exactly 4-5 services. Exactly 3 trustPoints. No markdown.`;
 
   try {
     const res = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: AI_MODEL,
       contents: prompt,
       config: { responseMimeType: "application/json" },
     });
@@ -336,10 +337,8 @@ export function buildDemoHtml(input: DemoInput, copy: DemoCopy): string {
 }
 
 export async function generateDemoPage(businessName: string, cityState: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getAiClient();
+  if (!ai) throw new Error("AI API key is not set (AI_API_KEY)");
 
   // Fetch GBP data concurrently while we start setting up
   const gbpData = await fetchGbpData(businessName, cityState);

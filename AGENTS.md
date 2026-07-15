@@ -1,43 +1,48 @@
-<!-- gitnexus:start -->
-# GitNexus — Code Intelligence
+# AGENTS.md — stoneVEIL Operations website
 
-This project is indexed by GitNexus as **website** (375 symbols, 453 relationships, 6 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+Guidance for AI agents and developers working in this repo. Keep it lean.
 
-> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+## What this is
 
-## Always Do
+A lead-generation site for stoneVEIL Operations LLC (AI automation for
+construction contractors). A visitor fills the "free missed-call audit" form →
+the server validates it, pulls Google Business Profile data, runs an AI audit
+that scores the lead (hot/warm/cold), stores it in Neon Postgres, and emails a
+tailored summary. Hot leads get a prefilled Calendly link.
 
-- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
-- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
-- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
-- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
+## Layout
 
-## Never Do
+```
+index.html            Vite entry (fonts, meta, Plausible)
+src/App.tsx           The single-page React site (hero, sections, form, results)
+src/index.css         Tailwind v4 theme + "lift the veil" design tokens
+server.ts             Express server: /api/lead, /admin/* (dashboard + demo gen)
+lib/ai.ts             AI provider config (model + key resolution) — swap vendor here
+lib/audit.ts          Audit + fit-scoring logic (JSON in, AuditResult out)
+lib/demo.ts           Demo-page generator (admin tool)
+lib/gbp.ts            Google Places / GBP lookups
+lib/email.ts          Resend audit email
+lib/validation.ts     Input sanitization + lead validation
+lib/db.ts, schema.ts  Neon Postgres via Drizzle ORM
+drizzle/              SQL migrations
+public/assets/        Site imagery (webp)
+docs/                 Planning + decision records (historical)
+```
 
-- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
-- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
-- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
-- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
+## Conventions
 
-## Resources
+- **Secrets** live in `.env` (git-ignored). Never hardcode keys or commit `.env`.
+  See `.env.example` for the full list.
+- **AI provider** is isolated in `lib/ai.ts`. To change model/vendor, edit only
+  that file — the rest of the app depends on `AuditResult`, not a vendor SDK.
+- **Untrusted input** (form fields + GBP data) is wrapped in delimiter blocks
+  before it reaches the model; the tier is always derived server-side from the
+  score, never taken from model output. Preserve this when editing prompts.
+- **Database** is Neon Postgres. Schema changes go through Drizzle:
+  edit `lib/schema.ts`, then `npx drizzle-kit generate`.
 
-| Resource | Use for |
-|----------|---------|
-| `gitnexus://repo/website/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/website/clusters` | All functional areas |
-| `gitnexus://repo/website/processes` | All execution flows |
-| `gitnexus://repo/website/process/{name}` | Step-by-step execution trace |
+## Common commands
 
-## CLI
-
-| Task | Read this skill file |
-|------|---------------------|
-| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
-| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
-| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
-| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
-| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
-| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
-
-<!-- gitnexus:end -->
+- `npm run dev` — local dev at http://localhost:3000
+- `npm run lint` — type-check (`tsc --noEmit`)
+- `npm run build` — client build + server bundle to `dist/`

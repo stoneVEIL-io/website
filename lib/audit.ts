@@ -1,5 +1,6 @@
 import type { GoogleGenAI } from "@google/genai";
 import type { GbpData } from "./gbp";
+import { AI_MODEL } from "./ai";
 
 export interface AuditResult {
   score: number;
@@ -135,7 +136,7 @@ Exactly 3 recommendations. No markdown.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: AI_MODEL,
       contents: prompt,
       config: { responseMimeType: "application/json" },
     });
@@ -145,7 +146,7 @@ Exactly 3 recommendations. No markdown.`;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      console.error("Gemini returned unparseable JSON. Raw (first 300 chars):", raw.slice(0, 300));
+      console.error("AI audit returned unparseable JSON. Raw (first 300 chars):", raw.slice(0, 300));
       return buildFallbackAudit(params);
     }
 
@@ -172,7 +173,7 @@ Exactly 3 recommendations. No markdown.`;
       topMissingFromGBP,
     };
   } catch (err) {
-    console.error("Gemini runAudit failed:", err);
+    console.error("AI audit failed:", err);
     return buildFallbackAudit(params);
   }
 }

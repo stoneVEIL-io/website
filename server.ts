@@ -20,7 +20,7 @@ const IS_PROD = process.env.NODE_ENV === "production";
 
 // Enable trust proxy in production behind Cloud Run reverse proxies
 if (IS_PROD) {
-  app.set("trust proxy", 1);
+  app.set("trust proxy", 2);
 }
 
 app.use(

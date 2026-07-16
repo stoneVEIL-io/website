@@ -62,6 +62,16 @@ app.use(
 // Enable JSON body parsed inputs with limit to prevent DoS
 app.use(express.json({ limit: "10kb" }));
 
+// Global baseline rate limit — generous ceiling that blunts broad hammering of any
+// route (static assets, /api/health) not covered by the per-endpoint limiters below.
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: false,
+  legacyHeaders: false,
+});
+app.use(globalLimiter);
+
 // Lead endpoint: 5 requests per 15 minutes per IP
 const leadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -262,7 +272,7 @@ app.post(
   "/admin/demo",
   adminLimiter,
   requireAdminAuth,
-  express.urlencoded({ extended: false }),
+  express.urlencoded({ extended: false, limit: "2kb" }),
   async (req, res) => {
     const businessName = (req.body?.businessName ?? "").toString().trim().slice(0, 120);
     const cityState = (req.body?.cityState ?? "").toString().trim().slice(0, 120);
@@ -322,24 +332,6 @@ function buildDashboardHtml(leadsList: any[]): string {
     const tierBadgeClass = l.qualificationTier === 'hot' ? 'hot' : l.qualificationTier === 'warm' ? 'warm' : 'cold';
     const tierLabel = l.qualificationTier ? l.qualificationTier.toUpperCase() : "PENDING";
     const scoreVal = l.qualificationScore !== null ? `${l.qualificationScore}/100` : "N/A";
-    
-    const generateDemoOnClick = `
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/admin/demo';
-      form.target = '_blank';
-      const bInput = document.createElement('input');
-      bInput.name = 'businessName';
-      bInput.value = '${esc(l.company)}';
-      const cInput = document.createElement('input');
-      cInput.name = 'cityState';
-      cInput.value = '${esc(l.serviceArea)}';
-      form.appendChild(bInput);
-      form.appendChild(cInput);
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-    `;
 
     return `
       <tr class="lead-row" data-name="${esc(l.name.toLowerCase())}" data-company="${esc(l.company.toLowerCase())}" data-trade="${esc(l.trade.toLowerCase())}" data-area="${esc(l.serviceArea.toLowerCase())}" data-tier="${esc(l.qualificationTier || 'pending')}">
@@ -362,7 +354,7 @@ function buildDashboardHtml(leadsList: any[]): string {
           ${l.phone ? `<div><a href="tel:${esc(l.phone.replace(/\D/g,''))}" class="admin-phone-link">📞 ${esc(l.phone)}</a></div>` : ''}
         </td>
         <td class="admin-align-right">
-          <button onclick="${esc(generateDemoOnClick)}" class="admin-action-btn">Generate Demo →</button>
+          <button class="admin-action-btn admin-demo-btn" data-company="${esc(l.company)}" data-area="${esc(l.serviceArea)}">Generate Demo →</button>
         </td>
       </tr>`;
   }).join("");
@@ -476,6 +468,29 @@ function buildDashboardHtml(leadsList: any[]): string {
 
     searchInput.addEventListener('input', filterLeads);
     tierFilter.addEventListener('change', filterLeads);
+
+    // Delegated handler for the per-row "Generate Demo" buttons. Values are read from
+    // data-* attributes via dataset (inert data) — never interpolated into executable
+    // JS — so a lead's company/serviceArea can never break out into script.
+    document.getElementById('leadsBody').addEventListener('click', function (e) {
+      const btn = e.target.closest('.admin-demo-btn');
+      if (!btn) return;
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin/demo';
+      form.target = '_blank';
+      const bInput = document.createElement('input');
+      bInput.name = 'businessName';
+      bInput.value = btn.dataset.company;
+      const cInput = document.createElement('input');
+      cInput.name = 'cityState';
+      cInput.value = btn.dataset.area;
+      form.appendChild(bInput);
+      form.appendChild(cInput);
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    });
   </script>
 </body>
 </html>`;

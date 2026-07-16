@@ -969,7 +969,7 @@ export default function App() {
             <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} stoneVEIL Operations LLC. All rights reserved.</p>
           </div>
           <div className="flex items-center space-x-6 text-xs font-semibold">
-            <a href="#" className="hover:text-white transition">Privacy Policy</a>
+            <a href="/privacy-policy.html" className="hover:text-white transition">Privacy Policy</a>
             <a href="#" className="hover:text-white transition">LinkedIn</a>
           </div>
         </div>

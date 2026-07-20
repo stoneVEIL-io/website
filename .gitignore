@@ -7,3 +7,13 @@ demo-output/
 *.log
 .env*
 !.env.example
+
+# IDE / agent session logs & local settings (can capture secrets on screen)
+.antigravity/
+.gitnexus/
+.claude/settings.local.json
+
+# STO-34 local verification scratch scripts
+test-db.ts
+test-ai.ts
+test-email.ts

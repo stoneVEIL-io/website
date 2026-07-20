@@ -1,0 +1,22 @@
+{
+  "//": "Starter project-scoped MCP config for Claude Code. Copy to .mcp.json (already gitignore-safe: no secrets here, tokens are ${ENV} refs). Verify each server URL against current docs / `claude mcp add`; endpoints change. Run /mcp in a Claude Code session to complete OAuth for servers that use it.",
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT}"
+      }
+    },
+    "linear": {
+      "//": "Confirm endpoint via `claude mcp add --transport sse linear <url>` then /mcp OAuth.",
+      "type": "sse",
+      "url": "https://mcp.linear.app/sse"
+    },
+    "gdrive": {
+      "//": "Google Drive is typically added as an OAuth connector; confirm the current method in docs. Placeholder shown for structure.",
+      "type": "http",
+      "url": "${GDRIVE_MCP_URL}"
+    }
+  }
+}

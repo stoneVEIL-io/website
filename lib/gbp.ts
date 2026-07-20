@@ -46,6 +46,7 @@ export async function fetchGbpData(businessName: string, cityState: string): Pro
   try {
     const searchRes = await fetch(SEARCH_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(5000),
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
@@ -70,6 +71,7 @@ export async function fetchGbpData(businessName: string, cityState: string): Pro
     }
 
     const detailsRes = await fetch(`https://places.googleapis.com/v1/places/${first.id}`, {
+      signal: AbortSignal.timeout(5000),
       headers: {
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask": DETAILS_FIELDS,

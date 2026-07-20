@@ -23,6 +23,17 @@ if (IS_PROD) {
   app.set("trust proxy", 2);
 }
 
+// STO-59 live check: set DEBUG_CLIENT_IP=1 on the Cloud Run revision to log the
+// resolved req.ip + the raw X-Forwarded-For chain. Confirms trust proxy=2 yields
+// varied REAL client IPs (not the shared GFE IP). Off by default — logs nothing
+// unless the env var is set, so it is safe to leave in the codebase.
+if (process.env.DEBUG_CLIENT_IP === "1") {
+  app.use((req, _res, next) => {
+    console.log(`[client-ip] ip=${req.ip} xff="${req.headers["x-forwarded-for"] ?? ""}"`);
+    next();
+  });
+}
+
 app.use(
   helmet({
     // HSTS: 1-year max-age, prod only.
@@ -31,18 +42,25 @@ app.use(
       ? { maxAge: 31536000, includeSubDomains: true }
       : false,
 
+    // Deny framing site-wide to prevent clickjacking (STO-50)
+    frameguard: { action: "deny" },
+
     contentSecurityPolicy: IS_PROD
       ? {
           directives: {
             defaultSrc: ["'self'"],
             // No unsafe-inline or unsafe-eval — Vite's prod bundle doesn't need them.
             scriptSrc: ["'self'", "https://plausible.io"],
-            styleSrc: ["'self'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:"],
+            // Fontshare (Cabinet Grotesk) + Google Fonts stylesheet CSDs
+            styleSrc: ["'self'", "https://fonts.googleapis.com", "https://api.fontshare.com"],
+            // Font files from Google (gstatic) and Fontshare CDN
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://api.fontshare.com"],
+            imgSrc: ["'self'", "data:", "https://stoneveil.io"],
             // Browser connects to our /api and Plausible for event tracking.
             // All other third-party calls (Gemini, Neon, Resend, Places) are server-side.
-            connectSrc: ["'self'", "https://plausible.io"],
+            connectSrc: ["'self'", "https://plausible.io", "https://api.fontshare.com"],
+            // Deny embedding in any frame (STO-50)
+            frameAncestors: ["'none'"],
           },
         }
       : {
@@ -50,8 +68,8 @@ app.use(
           directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://api.fontshare.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://api.fontshare.com"],
             imgSrc: ["'self'", "data:", "https://*"],
             connectSrc: ["'self'", "https://*", "ws://*", "wss://*"],
           },
@@ -89,6 +107,28 @@ const adminLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Too many admin requests." },
 });
+
+// In-memory cost circuit breaker for paid API calls (STO-77).
+// Caps external API spend at ~20 lead-audit requests/minute across this instance.
+// Not persistent across restarts and not shared between instances — real multi-instance
+// protection requires a Redis counter, but this prevents runaway costs from single-host bursts.
+let _apiCallsThisWindow = 0;
+let _apiWindowStart = Date.now();
+const MAX_PAID_CALLS_PER_MINUTE = 20;
+
+function checkCostCircuitBreaker(): boolean {
+  const now = Date.now();
+  if (now - _apiWindowStart >= 60_000) {
+    _apiCallsThisWindow = 0;
+    _apiWindowStart = now;
+  }
+  if (_apiCallsThisWindow >= MAX_PAID_CALLS_PER_MINUTE) {
+    console.warn("[circuit-breaker] Paid API call limit reached — request rejected.");
+    return false;
+  }
+  _apiCallsThisWindow++;
+  return true;
+}
 
 // Initialize server-side Gemini safely
 // Securely loaded via process.env.GEMINI_API_KEY
@@ -134,6 +174,11 @@ app.post("/api/lead", leadLimiter, async (req, res) => {
 
     const maskedEmail = email.replace(/(?<=^.{3})[^@]+(?=@)/, "***");
     console.log(`Received lead: ${name} at ${company} — ${trade} in ${serviceArea}, source: "${currentLeadSource}"`);
+
+    // Guard against cost-based DoS — reject if paid API call budget is exhausted (STO-77)
+    if (!checkCostCircuitBreaker()) {
+      return res.status(429).json({ error: "Service temporarily unavailable. Please try again in a minute." });
+    }
 
     // Fetch GBP data and run AI audit concurrently where possible
     const auditParams = {
@@ -529,14 +574,13 @@ const startServer = async () => {
   } else {
     // Production Mode: Serve standard compiled assets
     const distPath = path.join(process.cwd(), "dist");
-    
+
     // Serve public folder as static fallback
     app.use(express.static(path.join(process.cwd(), "public")));
     app.use(express.static(distPath));
-    
-    app.get("/landing.html", (req, res) => {
-      res.sendFile(path.join(process.cwd(), "public", "landing.html"));
-    });
+
+    // landing.html contains pre-launch draft copy — not served in production (STO-64)
+    app.get("/landing.html", (_req, res) => res.redirect(301, "/"));
 
     app.get("*all", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

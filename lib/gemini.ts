@@ -137,7 +137,7 @@ Exactly 3 recommendations. No markdown.`;
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,
-      config: { responseMimeType: "application/json" },
+      config: { responseMimeType: "application/json", maxOutputTokens: 1024 },
     });
 
     const raw = response.text?.trim() ?? "";

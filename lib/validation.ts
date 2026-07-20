@@ -56,11 +56,23 @@ function clampInt(val: any, min: number, max: number): number | undefined {
   return Math.max(min, Math.min(max, Math.trunc(n)));
 }
 
+const ALLOWED_GBP_URL_PREFIXES = [
+  "https://www.google.com/maps/",
+  "https://maps.google.com/",
+  "https://g.page/",
+  "https://goo.gl/maps/",
+];
+
 export function validateLeadInput(input: any): ValidationResult {
   const errors: string[] = [];
 
   if (!input || typeof input !== "object") {
     return { isValid: false, errors: ["Invalid payload format."] };
+  }
+
+  // Honeypot: bots fill hidden fields, humans don't
+  if (typeof input.hp === "string" && input.hp.length > 0) {
+    return { isValid: false, errors: ["Invalid submission."] };
   }
 
   const name = sanitizeString(input.name);
@@ -114,8 +126,12 @@ export function validateLeadInput(input: any): ValidationResult {
     errors.push("Invalid lead source selection.");
   }
 
-  if (gbpUrl && gbpUrl.length > 500) {
-    errors.push("Google Business Profile URL must not exceed 500 characters.");
+  if (gbpUrl) {
+    if (gbpUrl.length > 500) {
+      errors.push("Google Business Profile URL must not exceed 500 characters.");
+    } else if (!ALLOWED_GBP_URL_PREFIXES.some((prefix) => gbpUrl.startsWith(prefix))) {
+      errors.push("Google Business Profile URL must be a valid Google Maps link.");
+    }
   }
 
   const estMonthlySearches = clampInt(input.estMonthlySearches, 0, 100000);

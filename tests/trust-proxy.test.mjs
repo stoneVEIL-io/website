@@ -23,6 +23,17 @@ function ipFor(trustProxy) {
 }
 const src = () => readFileSync(new URL("../server.ts", import.meta.url), "utf8");
 
+// STO-59 live check: set DEBUG_CLIENT_IP=1 on the Cloud Run revision to log the
+// resolved req.ip + the raw X-Forwarded-For chain. Confirms trust proxy=2 yields
+// varied REAL client IPs (not the shared GFE IP). Off by default — logs nothing
+// unless the env var is set, so it's safe to leave in the codebase.
+if (process.env.DEBUG_CLIENT_IP === "1") {
+  app.use((req, _res, next) => {
+    console.log(`[client-ip] ip=${req.ip} xff="${req.headers["x-forwarded-for"] ?? ""}"`);
+    next();
+  });
+}
+
 test("trust proxy 2 -> real client IP", async () => assert.equal(await ipFor(2), "1.2.3.4"));
 test("trust proxy 2 ignores attacker-prepended IP", async () => assert.notEqual(await ipFor(2), "9.9.9.9"));
 test("trust proxy 2 does not fall back to GFE shared IP", async () => assert.notEqual(await ipFor(2), "5.6.7.8"));

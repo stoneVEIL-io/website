@@ -582,6 +582,20 @@ const startServer = async () => {
     // landing.html contains pre-launch draft copy — not served in production (STO-64)
     app.get("/landing.html", (_req, res) => res.redirect(301, "/"));
 
+    // Static SEO landing pages served at clean URLs (STO-74).
+    // Files live at public/<slug>.html; express.static above serves them at /<slug>.html
+    // (canonical inside points to the clean URL, so Google consolidates).
+    const landingSlugs = [
+      "ai-receptionist-for-contractors",
+      "automate-estimate-follow-up-construction",
+      "automate-scheduling-and-invoicing-for-contractors",
+    ];
+    for (const slug of landingSlugs) {
+      app.get(`/${slug}`, (_req, res) => {
+        res.sendFile(path.join(process.cwd(), "public", `${slug}.html`));
+      });
+    }
+
     app.get("*all", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });

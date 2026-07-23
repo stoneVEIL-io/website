@@ -22,17 +22,15 @@
     <meta name="twitter:description" content="Every missed call gets a text-back in seconds, in your voice, on your number. Free 48-hour audit." />
     <meta name="twitter:image" content="/assets/og-card.webp" />
 
-    <meta name="theme-color" content="#14161A" />
+    <meta name="theme-color" content="#050505" />
     <link rel="icon" href="/assets/monogram.webp" type="image/webp" />
 
-    <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
     <link rel="preload" as="image" href="/assets/plate-steel.webp" />
-    <link rel="stylesheet" href="/assets/landing.css" />
+    <link rel="stylesheet" href="/assets/brutalist.css" />
 
     <script defer data-domain="stoneveil.io" src="https://plausible.io/js/script.js"></script>
 
@@ -107,193 +105,222 @@
   </head>
   <body>
 
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="brand" href="/" aria-label="stoneVEIL Operations home">
-          <img class="brand__mark" src="/assets/monogram.webp" alt="" />
-          <span>stone<span class="brand__cobalt">VEIL</span><span class="brand__op">Operations</span></span>
+    <header class="b-header">
+      <div class="b-header__inner">
+        <a class="b-header__brand" href="/" aria-label="stoneVEIL Operations home">
+          <img src="/assets/monogram.webp" alt="" width="24" height="24" />
+          <span>STONEVEIL &reg;</span>
         </a>
-        <a class="header-cta" href="/#lead-capture-form">Book the audit</a>
+        <a class="b-btn b-btn--red" href="/#lead-capture-form">Book the audit &nbsp;&raquo;&raquo;&raquo;</a>
       </div>
     </header>
 
-    <section class="section hero">
-      <div class="container">
-        <nav class="crumbs" aria-label="Breadcrumb">
-          <a href="/">Home</a><span class="sep">/</span><span>AI receptionist for contractors</span>
+    <div class="b-hazard" aria-hidden="true"></div>
+
+    <section class="b-section">
+      <div class="b-container">
+
+        <nav class="b-micro b-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span aria-hidden="true">///</span><span class="b-micro--muted">AI receptionist for contractors</span>
         </nav>
 
-        <div class="hero__grid">
-          <div class="hero__content">
-            <span class="eyebrow">Lead response, automated</span>
-            <h1 class="h1">AI receptionist for contractors.</h1>
-            <p class="lede">
+        <hr class="b-rule b-mt-24" />
+
+        <div class="b-hero">
+          <div>
+            <div class="b-pillrow">
+              <span class="b-rev">Rev 2.6 &middot; Unit D-01</span>
+              <span class="b-rev b-rev--red">Lead response // automated</span>
+            </div>
+            <h1 class="b-macro">AI Receptionist<br />For Contractors.</h1>
+            <hr class="b-rule--red b-rule--stub" />
+            <p class="b-body b-body--lg b-max-52">
               Missed calls get an instant text-back from your business number.
               The bid never waits for whoever picks up first.
             </p>
-            <div class="hero__ctas">
-              <a class="btn btn-primary btn--viewfinder" href="/#lead-capture-form">Book the audit →</a>
-              <a class="btn btn-secondary" href="#numbers">See the numbers</a>
+            <div class="b-hero__ctas">
+              <a class="b-btn b-btn--red" href="/#lead-capture-form">Book the audit &nbsp;&raquo;&raquo;&raquo;</a>
+              <a class="b-btn b-btn--ghost" href="#numbers">See the numbers</a>
             </div>
           </div>
 
-          <div class="hero__plate" aria-hidden="true">
+          <div class="b-halftone b-hero__plate" aria-hidden="true">
             <img src="/assets/plate-steel.webp" alt="" loading="eager" fetchpriority="high" />
           </div>
         </div>
+
       </div>
     </section>
 
-    <section id="numbers" class="section section--limestone" aria-label="Lead-response benchmarks">
-      <div class="container">
-        <div class="figures figures--four">
-          <div class="figure">
-            <div class="figure__value">7&times;</div>
-            <p class="figure__caption">more likely to qualify a lead when reached within one hour</p>
-            <p class="figure__source">Harvard Business Review</p>
+    <hr class="b-rule" />
+
+    <section id="numbers" class="b-section b-section--paper-alt" aria-label="Lead-response benchmarks">
+      <div class="b-container">
+        <div class="b-datahead">
+          <span class="b-micro b-framed">Telemetry / speed-to-lead</span>
+          <span class="b-micro b-micro--muted">n = 4 sources</span>
+        </div>
+
+        <div class="b-figures4 b-gridlines">
+          <div>
+            <div class="b-figure__value b-figure__value--red">7&times;</div>
+            <p class="b-body b-figure__caption">More likely to qualify a lead when reached within one hour.</p>
+            <p class="b-micro b-micro--muted b-figure__source">Src / Harvard Business Review</p>
           </div>
-          <div class="figure">
-            <div class="figure__value">78%</div>
-            <p class="figure__caption">of customers hire the company that responds first</p>
-            <p class="figure__source">Lead-response research</p>
+          <div>
+            <div class="b-figure__value">78%</div>
+            <p class="b-body b-figure__caption">Of customers hire the company that responds first.</p>
+            <p class="b-micro b-micro--muted b-figure__source">Src / Lead-response research</p>
           </div>
-          <div class="figure">
-            <div class="figure__value">$3.50</div>
-            <p class="figure__caption">returned per $1 invested in AI customer service</p>
-            <p class="figure__source">Industry benchmark</p>
+          <div>
+            <div class="b-figure__value">$3.50</div>
+            <p class="b-body b-figure__caption">Returned per $1 invested in AI customer service.</p>
+            <p class="b-micro b-micro--muted b-figure__source">Src / Industry benchmark</p>
           </div>
-          <div class="figure">
-            <div class="figure__value">45%</div>
-            <p class="figure__caption">average SMS response rate, against roughly 6% for email</p>
-            <p class="figure__source">Messaging benchmarks</p>
+          <div>
+            <div class="b-figure__value">45%</div>
+            <p class="b-body b-figure__caption">Average SMS response rate, against roughly 6% for email.</p>
+            <p class="b-micro b-micro--muted b-figure__source">Src / Messaging benchmarks</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="prose">
-          <h2 class="h2">Why speed to lead is the whole game.</h2>
-          <p class="body">
-            Companies that reach a lead within one hour are nearly 7 times more
-            likely to qualify it (Harvard Business Review), and 78% of customers
-            hire whoever responds first. For most contractors, one recovered bid
-            covers the build.
-          </p>
-          <p class="body body-muted">
-            The AI receptionist is the backstop for what falls through the cracks
-            when your office manager is on another line, at lunch, or it is after
-            hours. Not a replacement. A safety net.
-          </p>
-        </div>
+    <hr class="b-rule" />
 
-        <div class="prose">
-          <h2 class="h2">How it's different from a call centre or answering service.</h2>
-          <p class="body">
-            No call centre, no per-call fee, no offshore rep reading a script.
-            It runs on your business number, writes in your voice with your
-            trade's language, and hands the qualified lead straight to you.
-          </p>
-
-          <div class="compare" role="group" aria-label="Comparison of a call-centre answering service vs. the stoneVEIL receptionist">
-            <div class="compare__col compare__col--not">
-              <div class="compare__label">Answering service</div>
-              <ul class="compare__list">
-                <li>Per-call fee, shared script.</li>
-                <li>Booked into their calendar, not yours.</li>
-                <li>Rep reading from a template you did not write.</li>
-                <li>Business hours only, unless you pay a premium.</li>
-              </ul>
-            </div>
-            <div class="compare__col compare__col--this">
-              <div class="compare__label">stoneVEIL receptionist</div>
-              <ul class="compare__list">
-                <li>Runs on your existing business number.</li>
-                <li>Writes in your voice and your trade's language.</li>
-                <li>You approve every template before it goes live.</li>
-                <li>One click to shut off any thread.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--limestone">
-      <div class="container">
-        <h2 class="h2">Frequently asked.</h2>
-        <div class="faq">
-          <div class="faq__item">
-            <p class="faq__q">Does this replace my office manager?</p>
-            <p class="faq__a">No. It is a backstop for after-hours, lunch, and simultaneous-call moments when your office manager is already on another line.</p>
-          </div>
-          <div class="faq__item">
-            <p class="faq__q">What does the pricing look like?</p>
-            <p class="faq__a">Workflow builds run $2,500 to $15,000 depending on scope. Managed retainers run $500 to $5,000 a month. The first audit is free.</p>
-          </div>
-          <div class="faq__item">
-            <p class="faq__q">Will it sound like a robot?</p>
-            <p class="faq__a">Messages are written in your trade's language and you approve every template before it goes live. Text beats voice for this anyway: SMS gets around a 45% response rate vs. about 6% for email.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <h2 class="h2">Also automating for contractors.</h2>
-        <p class="body body-muted">
-          Two more workflows built on tools you already own the accounts for.
+    <section class="b-section">
+      <div class="b-container">
+        <span class="b-micro b-framed">01 / Thesis</span>
+        <h2 class="b-h2 b-h2--stack">Speed to lead is the whole game.</h2>
+        <hr class="b-rule--red b-rule--stub" />
+        <p class="b-body b-body--lg b-max-62">
+          Companies that reach a lead within one hour are nearly 7 times more
+          likely to qualify it. 78% of customers hire whoever responds first.
+          For most contractors, one recovered bid covers the build.
         </p>
-        <div class="also">
-          <a class="also__card" href="/automate-estimate-follow-up-construction">
-            <span class="also__eyebrow">Estimate follow-up</span>
-            <h3 class="also__title">Day 2 / Day 5 / Day 10, on cadence.</h3>
-            <p class="also__body">
-              Every quote you send gets chased on schedule. The cadence stops
-              the moment your customer replies.
-            </p>
-            <span class="also__arrow">See how it works →</span>
+        <p class="b-body b-max-62 b-micro--muted">
+          The AI receptionist is the backstop for what falls through the cracks
+          when your office manager is on another line, at lunch, or it is after
+          hours. Not a replacement. A safety net.
+        </p>
+
+        <hr class="b-rule--hair b-mt-48 b-mb-48" />
+
+        <span class="b-micro b-framed">02 / Delta vs. answering service</span>
+        <h2 class="b-h2 b-h2--stack">Not a call centre.</h2>
+        <hr class="b-rule--red b-rule--stub" />
+        <p class="b-body b-body--lg b-max-62">
+          No call centre, no per-call fee, no offshore rep reading a script.
+          It runs on your business number, writes in your voice with your
+          trade's language, and hands the qualified lead straight to you.
+        </p>
+
+        <div class="b-compare2 b-gridlines" role="group" aria-label="Answering service vs. stoneVEIL receptionist">
+          <div>
+            <span class="b-compare__label b-compare__label--not">[ Answering service ]</span>
+            <ul class="b-compare__list b-compare__list--not">
+              <li>Per-call fee, shared script.</li>
+              <li>Booked into their calendar, not yours.</li>
+              <li>Rep reading a template you did not write.</li>
+              <li>Business hours only, unless you pay a premium.</li>
+            </ul>
+          </div>
+          <div>
+            <span class="b-compare__label b-compare__label--this">[ stoneVEIL receptionist ]</span>
+            <ul class="b-compare__list b-compare__list--this">
+              <li>Runs on your existing business number.</li>
+              <li>Writes in your voice and your trade's language.</li>
+              <li>You approve every template before it goes live.</li>
+              <li>One click to shut off any thread.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="b-rule" />
+
+    <section class="b-section b-section--paper-alt">
+      <div class="b-container">
+        <span class="b-micro b-framed">03 / Frequently asked</span>
+        <h2 class="b-h2 b-h2--stack">Q &amp; A.</h2>
+        <hr class="b-rule--red b-rule--stub" />
+
+        <div class="b-faq">
+          <div class="b-faq__item">
+            <p class="b-micro b-faq__marker">[ + ]</p>
+            <p class="b-h3">Does this replace my office manager?</p>
+            <p class="b-body b-faq__a">No. It is a backstop for after-hours, lunch, and simultaneous-call moments when your office manager is already on another line.</p>
+          </div>
+          <div class="b-faq__item">
+            <p class="b-micro b-faq__marker">[ + ]</p>
+            <p class="b-h3">What does the pricing look like?</p>
+            <p class="b-body b-faq__a">Workflow builds run $2,500 to $15,000 depending on scope. Managed retainers run $500 to $5,000 a month. The first audit is free.</p>
+          </div>
+          <div class="b-faq__item">
+            <p class="b-micro b-faq__marker">[ + ]</p>
+            <p class="b-h3">Will it sound like a robot?</p>
+            <p class="b-body b-faq__a">Messages are written in your trade's language and you approve every template before it goes live. Text beats voice for this anyway: SMS gets around a 45% response rate vs. about 6% for email.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="b-rule" />
+
+    <section class="b-section">
+      <div class="b-container">
+        <span class="b-micro b-framed">04 / Adjacent units</span>
+        <h2 class="b-h2 b-h2--stack">Also on the line.</h2>
+        <hr class="b-rule--red b-rule--stub" />
+        <p class="b-body b-max-62">Two more workflows on tools you already own the accounts for.</p>
+
+        <div class="b-also b-gridlines">
+          <a class="b-also__card" href="/automate-estimate-follow-up-construction">
+            <span class="b-micro b-also__unit">Unit D-02 // Estimate follow-up</span>
+            <h3 class="b-h3 b-also__title">Day 2 / Day 5 / Day 10, on cadence.</h3>
+            <p class="b-body b-also__body">Every quote you send gets chased on schedule. The cadence stops the moment your customer replies.</p>
+            <p class="b-micro b-arrow b-also__arrow">See how it works</p>
           </a>
-          <a class="also__card" href="/automate-scheduling-and-invoicing-for-contractors">
-            <span class="also__eyebrow">Scheduling and invoicing</span>
-            <h3 class="also__title">Fewer no-shows. Fewer stale invoices.</h3>
-            <p class="also__body">
-              Booked-job reminders and 7 / 14 / 30-day invoice chases.
-              Both stop the moment the customer replies or pays.
-            </p>
-            <span class="also__arrow">See how it works →</span>
+          <a class="b-also__card" href="/automate-scheduling-and-invoicing-for-contractors">
+            <span class="b-micro b-also__unit">Unit D-03 // Scheduling &amp; invoicing</span>
+            <h3 class="b-h3 b-also__title">Fewer no-shows. Fewer stale invoices.</h3>
+            <p class="b-body b-also__body">Booked-job reminders and 7 / 14 / 30-day invoice chases. Both stop the moment the customer replies or pays.</p>
+            <p class="b-micro b-arrow b-also__arrow">See how it works</p>
           </a>
         </div>
       </div>
     </section>
 
-    <section class="section section--ink cta-strip">
-      <div class="container">
-        <h2 class="h2">Free 48-hour missed-call audit.</h2>
-        <p class="body">
+    <div class="b-hazard" aria-hidden="true"></div>
+
+    <section class="b-section b-section--ink">
+      <div class="b-container">
+        <span class="b-micro b-framed b-micro--red">Audit / free / 48 hr</span>
+        <h2 class="b-h2 b-h2--stack b-max-16">Book the missed-call audit.</h2>
+        <hr class="b-rule--red b-rule--stub b-rule--stub-lg" />
+        <p class="b-body b-body--lg b-max-60">
           We call your line, document what happens, and hand you the cost in writing.
-          One page, no pitch attached.
+          One page. No pitch attached.
         </p>
-        <div class="cta-strip__actions">
-          <a class="btn btn-primary btn--viewfinder" href="/#lead-capture-form">Book the audit →</a>
+        <div class="b-cta-body">
+          <a class="b-btn b-btn--red" href="/#lead-capture-form">Book the audit &nbsp;&raquo;&raquo;&raquo;</a>
         </div>
-        <p class="fine">
+        <p class="b-micro b-micro--paper-muted b-mt-24">
           Or email <a href="mailto:origin@stoneveil.io">origin@stoneveil.io</a>. Replies go to a real inbox, not noreply.
         </p>
       </div>
     </section>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
+    <footer class="b-footer">
+      <div class="b-footer__inner">
         <div>
-          <div class="site-footer__brand">stone<span class="brand__cobalt">VEIL</span> Operations LLC</div>
-          <div class="site-footer__legal">&copy; 2026 stoneVEIL Operations LLC. All rights reserved.</div>
+          <div class="b-micro b-footer__brand">stoneVEIL &reg; Operations LLC</div>
+          <div class="b-micro b-footer__legal">&copy; 2026 &middot; All rights reserved &middot; Rev 2.6</div>
         </div>
-        <div class="site-footer__links">
-          <a href="/">Home</a>
-          <a href="/privacy-policy.html">Privacy</a>
+        <div class="b-footer__links">
+          <a class="b-micro" href="/">Home</a>
+          <a class="b-micro" href="/privacy-policy.html">Privacy</a>
         </div>
       </div>
     </footer>

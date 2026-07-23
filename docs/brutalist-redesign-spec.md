@@ -41,7 +41,7 @@ Driver: brand commitment, not aesthetic exploration or A/B test. Once shipped, t
 --paper-alt   #EAE8E3   secondary bg for compartment differentiation
 --ink         #050505   carbon ink (primary fg)
 --ink-2       #111111   secondary ink
---red         #E61919   aviation / hazard red (single accent, rationed)
+--accent      #1B49C8   cobalt (single accent, rationed) — reused from the retired Cabinet Grotesk palette for brand continuity across the pivot
 --divider     #050505   1-2px structural lines
 ```
 
@@ -138,11 +138,11 @@ Migrate remaining 2 landing pages to match Phase 1 smoke test. Add ASCII framing
 ### Phase 3 — Homepage (6-8 hrs)
 
 Rewrite `src/App.tsx` section-by-section, top-down. Special care:
-- **Lead form:** brutalist inputs = hard-bordered rectangles, uppercase mono labels, mono placeholder, no rounded focus rings — swap for inverted-color focus (bg → red)
-- **ROI sliders:** custom brutalist range input — hard-edged 2px track, 12×12px hard-edged red thumb, mono value readout in the corner. Uses `::-webkit-slider-thumb` / `::-moz-range-thumb`. Cross-browser tested.
-- **AI audit result cards:** `[ STRATEGY 01 ]` uppercase mono header, red 2px divider strip, mono body, `>>>` CTA arrow
+- **Lead form:** brutalist inputs = hard-bordered rectangles, uppercase mono labels, mono placeholder, no rounded focus rings — swap for inverted-color focus (bg → accent)
+- **ROI sliders:** custom brutalist range input — hard-edged 2px track, 12×12px hard-edged accent-cobalt thumb, mono value readout in the corner. Uses `::-webkit-slider-thumb` / `::-moz-range-thumb`. Cross-browser tested.
+- **AI audit result cards:** `[ STRATEGY 01 ]` uppercase mono header, accent 2px divider strip, mono body, `>>>` CTA arrow
 - **Grade-shift plate:** KILLED. Replace with hard 2-column split (massive h1 / halftoned worksite plate).
-- **Mobile sticky bar:** 2px black top border, aviation-red block CTA, `[ FREE / 48 HR ]` mono label.
+- **Mobile sticky bar:** 2px black top border, cobalt-accent block CTA, `[ FREE / 48 HR ]` mono label.
 
 **Blocker gate:** Full functional smoke test — form submits, ROI calc updates, audit result renders, mobile sticky bar appears at correct scroll depth, analytics events fire. Preview-deploy sign-off before Phase 4.
 
@@ -199,7 +199,7 @@ gcloud run services update-traffic stoneveil-web \
 ## 6. Open questions to resolve during Phase 1
 
 1. **New imagery generation.** User committed to new brutalist-native imagery (not repurposing existing plates via halftone overlay). Options: Higgs MCP image gen (memory notes Gemini prepay depleted; Higgs balance status unknown, needs check), or hand-crafted SVG blueprints/diagrams. **Decision needed before Phase 2.**
-2. **Founder-note aside (homepage):** the current "Who's building this" side-rail with the 8yrs/4yrs stats is warm brand copy. Brutalist rewrite could preserve content but shift visual entirely (mono block with red divider). Or the section could be cut. **Decision needed before Phase 3.**
+2. **Founder-note aside (homepage):** the current "Who's building this" side-rail with the 8yrs/4yrs stats is warm brand copy. Brutalist rewrite could preserve content but shift visual entirely (mono block with accent divider). Or the section could be cut. **Decision needed before Phase 3.**
 3. **FAQ interaction:** current homepage uses `+/−` toggle to expand answers. Brutalist alt: `[+]`/`[-]` uppercase mono glyphs. Same behavior. Or: static-open, no toggle (matches landing page pattern). **Decision needed before Phase 3.**
 4. **Body copy in JetBrains Mono:** committing to monospace body copy is a strong brutalist statement. It affects readability at scale. **Confirm during Phase 1 preview.** If it fails the readability check on real content, fall back to a neo-grotesque body (Inter Regular) with Mono reserved for metadata only.
 

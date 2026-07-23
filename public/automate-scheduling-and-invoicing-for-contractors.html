@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Automate scheduling and invoicing for contractors — stoneVEIL Operations</title>
+    <title>Automate scheduling and invoicing for contractors · stoneVEIL Operations</title>
     <meta name="description" content="Automate scheduling reminders and unpaid-invoice chases on a 7 / 14 / 30-day cadence. Auto-pauses on reply or payment. Free 48-hour audit." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://stoneveil.io/automate-scheduling-and-invoicing-for-contractors" />
 
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://stoneveil.io/automate-scheduling-and-invoicing-for-contractors" />
-    <meta property="og:title" content="Automate scheduling and invoicing for contractors — stoneVEIL Operations" />
+    <meta property="og:title" content="Automate scheduling and invoicing for contractors · stoneVEIL Operations" />
     <meta property="og:description" content="Fewer no-shows and fewer stale invoices, without you being the one to chase again. Free 48-hour audit." />
     <meta property="og:site_name" content="stoneVEIL Operations" />
     <meta property="og:image" content="https://stoneveil.io/assets/og-card.webp" />
@@ -18,7 +18,7 @@
     <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Automate scheduling and invoicing for contractors — stoneVEIL Operations" />
+    <meta name="twitter:title" content="Automate scheduling and invoicing for contractors · stoneVEIL Operations" />
     <meta name="twitter:description" content="Fewer no-shows and fewer stale invoices, without you being the one to chase again." />
     <meta name="twitter:image" content="/assets/og-card.webp" />
 
@@ -31,85 +31,10 @@
     <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
 
-    <script defer data-domain="stoneveil.io" src="https://plausible.io/js/script.js"></script>
+    <link rel="preload" as="image" href="/assets/plate-blueprint.webp" />
+    <link rel="stylesheet" href="/assets/landing.css" />
 
-    <style>
-      :root {
-        --ink: #14161A;
-        --ink-muted: #5B5F66;
-        --paper: #F7F5F1;
-        --cobalt: #2451FF;
-        --hairline: #E4E0D8;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        background: var(--paper);
-        color: var(--ink);
-        font-family: 'Inter Tight', system-ui, sans-serif;
-        line-height: 1.65;
-      }
-      a { color: var(--cobalt); text-decoration: none; }
-      a:hover { text-decoration: underline; }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
-      .home-link {
-        display: inline-flex; align-items: center; gap: 6px;
-        font-weight: 600; font-size: 14px; margin-bottom: 40px;
-      }
-      .brand .cobalt { color: var(--cobalt); }
-      .eyebrow {
-        text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px;
-        font-weight: 600; color: var(--cobalt); margin-bottom: 12px;
-      }
-      h1 {
-        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
-        font-weight: 800; font-size: 2.5rem; line-height: 1.1;
-        letter-spacing: -0.02em; margin: 0 0 24px;
-      }
-      .lede { font-size: 1.125rem; color: #26282D; margin: 0 0 32px; }
-      h2 {
-        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
-        font-weight: 700; font-size: 1.375rem; margin: 48px 0 12px;
-        letter-spacing: -0.01em;
-      }
-      h3 {
-        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
-        font-weight: 600; font-size: 1.05rem; margin: 24px 0 6px;
-      }
-      p, li { font-size: 15.5px; color: #26282D; }
-      .cadence {
-        margin: 32px 0 8px; padding: 24px; background: #fff;
-        border: 1px solid var(--hairline);
-      }
-      .cadence-item { padding: 12px 0; border-bottom: 1px solid var(--hairline); }
-      .cadence-item:last-child { border-bottom: 0; }
-      .cadence-day {
-        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
-        font-weight: 800; font-size: 1.05rem; color: var(--cobalt);
-        display: inline-block; min-width: 84px;
-      }
-      .cadence-desc { color: #26282D; font-size: 15px; }
-      .cta {
-        margin: 48px 0 0; padding: 28px 24px; background: var(--ink); color: var(--paper);
-      }
-      .cta h3 {
-        font-family: 'Cabinet Grotesk', 'Inter Tight', sans-serif;
-        font-weight: 700; font-size: 1.25rem; margin: 0 0 10px; color: #fff;
-      }
-      .cta p { color: #CFCFCF; margin: 0 0 18px; }
-      .cta a.button {
-        display: inline-block; background: var(--cobalt); color: #fff;
-        padding: 12px 22px; font-weight: 600; font-size: 15px;
-      }
-      .cta a.button:hover { background: #1a3ee6; text-decoration: none; }
-      nav.crumbs { font-size: 13px; color: var(--ink-muted); margin: 0 0 20px; }
-      nav.crumbs a { color: var(--ink-muted); }
-      nav.crumbs .sep { margin: 0 6px; }
-      footer {
-        margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--hairline);
-        font-size: 13px; color: var(--ink-muted);
-      }
-    </style>
+    <script defer data-domain="stoneveil.io" src="https://plausible.io/js/script.js"></script>
 
     <script type="application/ld+json">
     {
@@ -176,69 +101,187 @@
     </script>
   </head>
   <body>
-    <div class="wrap">
-      <a class="home-link" href="/">&larr; Back to <span class="brand">stone<span class="cobalt">VEIL</span></span></a>
 
-      <nav class="crumbs" aria-label="Breadcrumb">
-        <a href="/">Home</a><span class="sep">/</span><span>Automate scheduling and invoicing for contractors</span>
-      </nav>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="stoneVEIL Operations home">
+          <img class="brand__mark" src="/assets/monogram.webp" alt="" />
+          <span>stone<span class="brand__cobalt">VEIL</span><span class="brand__op">Operations</span></span>
+        </a>
+        <a class="header-cta" href="/#lead-capture-form">Book the audit</a>
+      </div>
+    </header>
 
-      <div class="eyebrow">Scheduling &amp; invoicing, automated</div>
-      <h1>Automate scheduling and invoicing for contractors</h1>
-      <p class="lede">
-        Booked jobs and unpaid invoices both need chasing, and both usually lose to whatever's on fire that
-        day. stoneVEIL automates appointment reminders so fewer no-shows slip through, and chases unpaid
-        invoices on a 7&nbsp;/&nbsp;14&nbsp;/&nbsp;30-day cadence that auto-pauses the moment a customer responds or pays.
-      </p>
+    <section class="section hero">
+      <div class="container">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span><span>Automate scheduling and invoicing for contractors</span>
+        </nav>
 
-      <h2>Does this replace my accounting software?</h2>
-      <p>
-        No &mdash; it layers reminders and chase sequences on top of the scheduling and invoicing tools
-        you already use. Nothing to migrate.
-      </p>
+        <div class="hero__grid">
+          <div class="hero__content">
+            <span class="eyebrow">Scheduling and invoicing, automated</span>
+            <h1 class="h1">Automate scheduling and invoicing for contractors.</h1>
+            <p class="lede">
+              Booked-job reminders and 7 / 14 / 30-day invoice chases.
+              Both stop the moment the customer replies or pays.
+            </p>
+            <div class="hero__ctas">
+              <a class="btn btn-primary btn--viewfinder" href="/#lead-capture-form">Book the audit →</a>
+              <a class="btn btn-secondary" href="#cadence">See the cadence</a>
+            </div>
+          </div>
 
-      <h2>What stops it from nagging a customer who already paid?</h2>
-      <p>
-        The sequence auto-pauses on any customer reply or on payment confirmation from your existing
-        invoicing tool. No double-chasing.
-      </p>
-
-      <div class="cadence" aria-label="Invoice-chase cadence">
-        <div class="cadence-item">
-          <span class="cadence-day">Day 7</span>
-          <span class="cadence-desc">A friendly first reminder with a payment link and the invoice attached.</span>
-        </div>
-        <div class="cadence-item">
-          <span class="cadence-day">Day 14</span>
-          <span class="cadence-desc">A firmer check-in that offers a phone number to call if there's a question.</span>
-        </div>
-        <div class="cadence-item">
-          <span class="cadence-day">Day 30</span>
-          <span class="cadence-desc">A final notice before the invoice moves to a manual follow-up on your end.</span>
+          <div class="hero__plate" aria-hidden="true">
+            <img src="/assets/plate-blueprint.webp" alt="" loading="eager" fetchpriority="high" />
+          </div>
         </div>
       </div>
+    </section>
 
-      <h2>Frequently asked questions</h2>
-      <h3>What's the invoice cadence?</h3>
-      <p>Unpaid invoices are followed up at 7, 14, and 30 days, pausing on reply or payment.</p>
-
-      <h3>What's the pricing?</h3>
-      <p>
-        Same build and retainer bands as the core service: $2,500&ndash;$15,000 build,
-        $500&ndash;$5,000/mo managed. The first audit is free.
-      </p>
-
-      <div class="cta">
-        <h3>Free 48-hour missed-call audit</h3>
-        <p>We call your line, document what happens, and hand you the cost in writing. One page, no pitch attached.</p>
-        <a class="button" href="/#lead-capture-form">Book the audit &rarr;</a>
+    <section id="cadence" class="section section--limestone" aria-label="Invoice-chase cadence">
+      <div class="container">
+        <div class="figures figures--three">
+          <div class="figure">
+            <div class="figure__value">Day 7</div>
+            <p class="figure__caption">A friendly first reminder with a payment link and the invoice attached.</p>
+            <p class="figure__source">First touch</p>
+          </div>
+          <div class="figure">
+            <div class="figure__value">Day 14</div>
+            <p class="figure__caption">A firmer check-in that offers a phone number for questions.</p>
+            <p class="figure__source">Second touch</p>
+          </div>
+          <div class="figure">
+            <div class="figure__value">Day 30</div>
+            <p class="figure__caption">A final notice before the invoice moves to a manual follow-up on your end.</p>
+            <p class="figure__source">Final touch</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <footer>
-        &copy; 2026 stoneVEIL Operations LLC. All rights reserved.
-        &middot; <a href="/">Home</a>
-        &middot; <a href="/privacy-policy.html">Privacy</a>
-      </footer>
-    </div>
+    <section class="section">
+      <div class="container">
+        <div class="prose">
+          <h2 class="h2">What stops it from nagging a customer who already paid.</h2>
+          <p class="body">
+            The sequence auto-pauses on any customer reply, or on payment
+            confirmation from your existing invoicing tool. No double-chasing.
+          </p>
+          <p class="body body-muted">
+            Booked jobs and unpaid invoices both need chasing, and both usually
+            lose to whatever is on fire that day. This is the layer that
+            handles them without you being the one to remember.
+          </p>
+        </div>
+
+        <div class="prose">
+          <h2 class="h2">Layers on tools you already own.</h2>
+          <p class="body">
+            No accounting software to migrate. It layers appointment reminders
+            and invoice-chase sequences on top of the scheduling and invoicing
+            tools you already use. Nothing to switch.
+          </p>
+
+          <div class="compare" role="group" aria-label="Manual chase vs. automated cadence">
+            <div class="compare__col compare__col--not">
+              <div class="compare__label">Manual chase</div>
+              <ul class="compare__list">
+                <li>You remember at Day 7, half-remember at Day 14.</li>
+                <li>You feel awkward chasing at Day 30.</li>
+                <li>You accidentally double-chase after payment lands.</li>
+                <li>Some invoices sit stale for months.</li>
+              </ul>
+            </div>
+            <div class="compare__col compare__col--this">
+              <div class="compare__label">Automated cadence</div>
+              <ul class="compare__list">
+                <li>Day 7, 14, 30 fire on schedule in your voice.</li>
+                <li>Auto-pauses on payment confirmation.</li>
+                <li>You see paid invoices, not the chase queue.</li>
+                <li>Collections runs on its own.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--limestone">
+      <div class="container">
+        <h2 class="h2">Frequently asked.</h2>
+        <div class="faq">
+          <div class="faq__item">
+            <p class="faq__q">What's the invoice cadence?</p>
+            <p class="faq__a">Unpaid invoices are followed up at 7, 14, and 30 days, pausing on reply or payment.</p>
+          </div>
+          <div class="faq__item">
+            <p class="faq__q">What's the pricing?</p>
+            <p class="faq__a">Same build and retainer bands as the core service. $2,500 to $15,000 build, $500 to $5,000 a month managed. The first audit is free.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="h2">Also automating for contractors.</h2>
+        <p class="body body-muted">
+          Two more workflows built on tools you already own the accounts for.
+        </p>
+        <div class="also">
+          <a class="also__card" href="/ai-receptionist-for-contractors">
+            <span class="also__eyebrow">AI receptionist</span>
+            <h3 class="also__title">Every missed call gets a text back.</h3>
+            <p class="also__body">
+              The moment a call goes unanswered, the caller gets a text from
+              your business number. The lead lands with a name and a job
+              description, not a voicemail.
+            </p>
+            <span class="also__arrow">See how it works →</span>
+          </a>
+          <a class="also__card" href="/automate-estimate-follow-up-construction">
+            <span class="also__eyebrow">Estimate follow-up</span>
+            <h3 class="also__title">Day 2 / Day 5 / Day 10, on cadence.</h3>
+            <p class="also__body">
+              Every quote you send gets chased on schedule. The cadence stops
+              the moment your customer replies.
+            </p>
+            <span class="also__arrow">See how it works →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--ink cta-strip">
+      <div class="container">
+        <h2 class="h2">Free 48-hour missed-call audit.</h2>
+        <p class="body">
+          We call your line, document what happens, and hand you the cost in writing.
+          One page, no pitch attached.
+        </p>
+        <div class="cta-strip__actions">
+          <a class="btn btn-primary btn--viewfinder" href="/#lead-capture-form">Book the audit →</a>
+        </div>
+        <p class="fine">
+          Or email <a href="mailto:origin@stoneveil.io">origin@stoneveil.io</a>. Replies go to a real inbox, not noreply.
+        </p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div>
+          <div class="site-footer__brand">stone<span class="brand__cobalt">VEIL</span> Operations LLC</div>
+          <div class="site-footer__legal">&copy; 2026 stoneVEIL Operations LLC. All rights reserved.</div>
+        </div>
+        <div class="site-footer__links">
+          <a href="/">Home</a>
+          <a href="/privacy-policy.html">Privacy</a>
+        </div>
+      </div>
+    </footer>
+
   </body>
 </html>

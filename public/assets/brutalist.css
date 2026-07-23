@@ -1,0 +1,326 @@
+/* stoneVEIL — brutalist design system (Swiss Industrial Print).
+   Phase 1 tokens + primitives. Not yet applied to prod.
+   Spec: docs/brutalist-redesign-spec.md. */
+
+:root {
+  --paper:     #F4F4F0;
+  --paper-alt: #EAE8E3;
+  --ink:       #050505;
+  --ink-2:     #111111;
+  --red:       #E61919;
+
+  --font-macro: 'Archivo Black', 'Helvetica Neue', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  --hairline: 1px solid var(--ink);
+  --divider:  2px solid var(--ink);
+  --hazard:   2px solid var(--red);
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0 !important; }
+
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--red); }
+
+::selection { background: var(--red); color: var(--paper); }
+
+/* ─── Global grain (desktop, no reduced-motion) ────────────────── */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+}
+
+/* ─── Grid containers ──────────────────────────────────────────── */
+.b-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 32px);
+}
+
+.b-section {
+  padding-block: clamp(48px, 7vw, 96px);
+  position: relative;
+}
+.b-section--paper-alt { background: var(--paper-alt); }
+.b-section--ink { background: var(--ink); color: var(--paper); }
+
+/* Full-width structural rule — the workhorse divider */
+.b-rule       { border: 0; border-top: var(--divider); margin: 0; }
+.b-rule--hair { border: 0; border-top: var(--hairline); margin: 0; }
+.b-rule--red  { border: 0; border-top: var(--hazard); margin: 0; }
+
+/* Razor-thin grid dividers via gap + contrasting bg */
+.b-gridlines {
+  background: var(--ink);
+  display: grid;
+  gap: 1px;
+}
+.b-gridlines > * { background: var(--paper); padding: clamp(16px, 2.5vw, 32px); }
+
+/* ─── Typography primitives ────────────────────────────────────── */
+.b-macro {
+  font-family: var(--font-macro);
+  font-weight: 900;
+  font-size: clamp(3rem, 8vw, 12rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--ink);
+}
+.b-h2 {
+  font-family: var(--font-macro);
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--ink);
+}
+.b-h3 {
+  font-family: var(--font-macro);
+  font-weight: 900;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* Micro (metadata, nav, telemetry) */
+.b-micro {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.b-micro--muted { color: var(--ink-2); font-weight: 400; }
+.b-micro--red   { color: var(--red); }
+
+/* Body copy — mono commitment, evaluate readability in Phase 1 preview */
+.b-body {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 68ch;
+  margin: 0 0 16px;
+}
+.b-body--lg { font-size: 16px; }
+
+.b-section--ink .b-macro,
+.b-section--ink .b-h2,
+.b-section--ink .b-h3,
+.b-section--ink .b-micro,
+.b-section--ink .b-body { color: var(--paper); }
+.b-section--ink .b-micro--red { color: var(--red); }
+
+/* ─── ASCII framing helpers ────────────────────────────────────── */
+.b-framed::before { content: "[ "; letter-spacing: 0; }
+.b-framed::after  { content: " ]"; letter-spacing: 0; }
+.b-arrow::after   { content: " >>>"; letter-spacing: 0; }
+.b-slash::before  { content: "/// "; color: var(--red); }
+
+/* Rev-code chip */
+.b-rev {
+  display: inline-block;
+  padding: 4px 8px;
+  border: var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.b-rev--red { border-color: var(--red); color: var(--red); }
+
+/* Crosshair (used at grid intersections or as unit markers) */
+.b-crosshair {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  position: relative;
+}
+.b-crosshair::before,
+.b-crosshair::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+.b-crosshair::before { top: 5px; left: 0; right: 0; height: 2px; }
+.b-crosshair::after  { left: 5px; top: 0; bottom: 0; width: 2px; }
+
+/* ─── Buttons ──────────────────────────────────────────────────── */
+.b-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: var(--divider);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 120ms linear, color 120ms linear, transform 60ms linear;
+}
+.b-btn:hover  { background: var(--ink); color: var(--paper); text-decoration: none; }
+.b-btn:active { transform: translate(1px, 1px); }
+.b-btn:focus-visible { outline: var(--hazard); outline-offset: 3px; }
+
+.b-btn--red { background: var(--red); border-color: var(--red); color: var(--paper); }
+.b-btn--red:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+.b-btn--ghost { background: transparent; }
+.b-btn--ghost:hover { background: var(--ink); color: var(--paper); }
+
+.b-section--ink .b-btn { background: transparent; border-color: var(--paper); color: var(--paper); }
+.b-section--ink .b-btn:hover { background: var(--paper); color: var(--ink); }
+.b-section--ink .b-btn--red { background: var(--red); border-color: var(--red); color: var(--paper); }
+.b-section--ink .b-btn--red:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* ─── Hazard stripe (thick warning band) ───────────────────────── */
+.b-hazard {
+  height: 8px;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      var(--red) 0 12px,
+      var(--ink) 12px 24px
+    );
+}
+
+/* ─── Halftone image utility ───────────────────────────────────── */
+/* Applied to a wrapping element containing a single <img> */
+.b-halftone {
+  position: relative;
+  overflow: hidden;
+  border: var(--divider);
+  background: var(--paper);
+}
+.b-halftone > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.25);
+  mix-blend-mode: multiply;
+}
+.b-halftone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--ink) 22%, transparent 24%);
+  background-size: 4px 4px;
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+/* ─── Data list (definition-list telemetry) ────────────────────── */
+.b-datalist {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 18px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.b-datalist dt { color: var(--ink-2); }
+.b-datalist dd { color: var(--ink); margin: 0; font-weight: 700; }
+
+/* ─── Header (sticky, thin, no blur) ───────────────────────────── */
+.b-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--paper);
+  border-bottom: var(--divider);
+}
+.b-header__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px clamp(16px, 3vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.b-header__brand {
+  font-family: var(--font-macro);
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.b-header__brand:hover { color: var(--ink); text-decoration: none; }
+
+/* ─── Footer ───────────────────────────────────────────────────── */
+.b-footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 32px clamp(16px, 3vw, 32px);
+  border-top: var(--divider);
+}
+.b-footer__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .b-footer__inner { flex-direction: row; justify-content: space-between; align-items: center; }
+}
+.b-footer a { color: var(--paper); text-decoration-color: var(--red); }
+.b-footer a:hover { color: var(--red); }
+
+/* ─── Reduced motion — kill all non-essential motion ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

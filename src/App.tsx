@@ -38,24 +38,28 @@ const AUTOMATIONS = [
     title: 'Missed call text back',
     outcome: "The phone rings while your crew is on a roof. Nobody picks up. Within seconds the caller gets a text from your number that asks what they need and books them in, so the bid never goes to whoever called back first.",
     stack: 'Twilio, Make, Airtable',
+    href: '/ai-receptionist-for-contractors',
   },
   {
     icon: '/assets/icons/icon-03.webp',
     title: 'Estimate follow up that actually happens',
     outcome: 'Every estimate you send gets chased on a schedule you set: a nudge at day two, a check in at day five, a last call at day ten. You stop losing jobs to silence.',
     stack: 'Airtable, Make, OpenAI',
+    href: '/automate-estimate-follow-up-construction',
   },
   {
     icon: '/assets/icons/icon-04.webp',
     title: 'Scheduling without the back and forth',
     outcome: 'Callers pick a window from your real availability. Confirmations and reminders go out on their own, so fewer people forget you were coming.',
     stack: 'Google Calendar, Make, Twilio',
+    href: '/automate-scheduling-and-invoicing-for-contractors',
   },
   {
     icon: '/assets/icons/icon-05.webp',
     title: 'Invoice chasing on autopilot',
     outcome: 'Unpaid invoices get a polite reminder at 7, 14 and 30 days, in your voice, without you being the one to ask again.',
     stack: 'QuickBooks, Make, Twilio',
+    href: '/automate-scheduling-and-invoicing-for-contractors',
   },
   {
     icon: '/assets/icons/icon-06.webp',
@@ -499,6 +503,15 @@ export default function App() {
                 <div className={`md:col-span-7 space-y-2 ${i % 2 === 1 ? 'md:order-first' : ''}`}>
                   <h3 className="text-xl md:text-2xl font-bold font-display text-ink">{a.title}</h3>
                   <p className="text-sm md:text-base text-ink-muted leading-relaxed max-w-2xl">{a.outcome}</p>
+                  {a.href && (
+                    <a
+                      href={a.href}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-cobalt hover:underline pt-1"
+                    >
+                      See how it works
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                 </div>
                 <div className="md:col-span-3">
                   <span className="text-[11px] uppercase tracking-wider text-cobalt font-semibold">{a.stack}</span>
